@@ -1,0 +1,69 @@
+dto:
+  username:
+    type: string
+    length:
+      min: 3
+      max: 20
+    required: true
+  password:
+    required: true
+    type: string
+    length:
+      min: 8
+      max: 10
+  age:
+    type: integer
+    range:
+      min: 18
+      max: 40
+  birthdate:
+    type: string
+    format: date
+    pattern: '/^\d{4}-\d{2}-\d{2}$/'  # YYYY-MM-DD format
+  inventory:
+    type: array
+    properties:
+      item:
+        type: object
+        properties:
+          name:
+            required: true
+            type: string
+          amount:
+            required: true
+            type: integer
+  address:
+    required: true
+    type: object
+    properties:
+      street:
+        required: true
+        type: string
+        length:
+          min: 3
+          max: 10
+      city:
+        required: true
+        type: string
+        length:
+            min: 3
+            max: 20
+      state:
+        required: true
+        type: string
+        length:
+            min: 2
+            max: 2
+      zip:
+        required: true
+        type: string
+        length:
+            min: 3
+            max: 20
+  height:
+    type: integer
+    range:
+      min: 1
+      max: 84
+
+

@@ -1,0 +1,11 @@
+map:
+  test.username: user.name
+  test.password: user.password
+  test.age: user.age
+  test.address.street: user.address.street
+  test.address.city: user.address.city
+  test.address.state: user.address.state
+  test.address.zip: user.address.zip
+  test.inventory: user.inventory
+  test.inventory.name: user.inventory.name
+  test.inventory.amount: user.inventory.amount

@@ -1,0 +1,26 @@
+{
+  "name": "neuron-php/dto",
+  "description": "Easy, dynamic DTO creation, validation and mapping.",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Lee Jones",
+      "email": "lee@dragonflyrg.com"
+    }
+  ],
+  "require": {
+    "symfony/yaml": "^6.4",
+    "neuron-php/validation": "^0.7.0",
+    "neuron-php/logging": "^0.7.9"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "9.*",
+    "phpmd/phpmd": "^2.15"
+  },
+  "autoload": {
+    "psr-4": {
+      "Neuron\\": "src/"
+    }
+  }
+}
