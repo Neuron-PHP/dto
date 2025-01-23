@@ -109,6 +109,11 @@ class Dto
 			throw new ParameterNotFoundException( $Name );
 		}
 
+		if( count( $Parameter->getChildren() ) )
+		{
+			return $Parameter->getChildren();
+		}
+
 		return $Parameter->getValue();
 	}
 

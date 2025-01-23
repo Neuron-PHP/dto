@@ -15,6 +15,8 @@ class Parameter
 	private array	$_TypeValidators;
 	private Validation\Collection $_Validators;
 
+	private array $_Children = [];
+
 	/**
 	 *
 	 */
@@ -48,6 +50,32 @@ class Parameter
 		];
 
 		$this->_Validators = new Validation\Collection();
+	}
+
+	/**
+	 * @param Dto $Dto
+	 * @return void
+	 */
+	public function addChild( Dto $Dto ) : void
+	{
+		$this->_Children[] = $Dto;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getChildren() : array
+	{
+		return $this->_Children;
+	}
+
+	/**
+	 * @param int $Offset
+	 * @return Dto
+	 */
+	public function getChild( int $Offset ) : Dto
+	{
+		return $this->_Children[ $Offset ];
 	}
 
 	/**

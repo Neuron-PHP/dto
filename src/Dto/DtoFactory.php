@@ -60,7 +60,7 @@ class DtoFactory
 
 			$P->setType( $Parameter[ 'type' ] );
 
-			if( $P->getType() === 'object' )
+			if( $P->getType() === 'object' || $P->getType() === 'array' )
 			{
 				$ParamDto = $this->createDto( $Name, $Parameter[ 'properties' ] );
 				$ParamDto->setParent( $Dto );

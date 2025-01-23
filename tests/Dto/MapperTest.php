@@ -13,7 +13,6 @@ class MapperTest extends TestCase
 
 	public function testFlattenFields()
 	{
-		$MapperFactory = new MapperFactory( 'examples/test-json.map.yaml' );
 		$Mapper = new Mapper();
 
 		$Payload = [
@@ -27,6 +26,20 @@ class MapperTest extends TestCase
 					'city'   => 'Mockingbird Heights',
 					'state'  => 'CA',
 					'zip'    => '90210'
+				],
+				'inventory' => [
+					[
+						'name' => 'shoes',
+						'amount' => 1
+					],
+					[
+						'name' => 'jackets',
+						'amount' => 2
+					],
+					[
+						'name' => 'pants',
+						'amount' => 3
+					]
 				]
 			]
 		];
@@ -60,6 +73,7 @@ class MapperTest extends TestCase
 			$Mapper->getParameters()[ 'test.address.street' ]->getValue(),
 			'test'
 		);
+
 	}
 
 	public function testSetName()
@@ -78,7 +92,6 @@ class MapperTest extends TestCase
 		$Mapper->setAlias( 'test', 'alias' );
 
 		$this->assertEquals( 'alias', $Mapper->getAlias( 'test' ) );
-
 	}
 
 	public function testMapSuccess()
@@ -101,6 +114,20 @@ class MapperTest extends TestCase
 					'city'   => 'Mockingbird Heights',
 					'state'  => 'CA',
 					'zip'    => '90210'
+				],
+				'inventory' => [
+					[
+						'name' => 'shoes',
+						'amount' => 1
+					],
+					[
+						'name' => 'jackets',
+						'amount' => 2
+					],
+					[
+						'name' => 'pants',
+						'amount' => 3
+					]
 				]
 			]
 		];
@@ -127,6 +154,42 @@ class MapperTest extends TestCase
 		$this->assertEquals(
 			'testtest',
 			$Dto->getParameter( 'password' )->getValue()
+		);
+
+		$this->assertEquals(
+			1,
+			$Dto->getParameter( 'inventory' )
+				 ->getChild( 0 )
+				 ->getParameter( 'amount' )
+				 ->getValue()
+		);
+
+		$this->assertEquals(
+			2,
+			$Dto->getParameter( 'inventory' )
+				 ->getChild( 1 )
+				 ->getParameter( 'amount' )
+				 ->getValue()
+		);
+
+		$this->assertEquals(
+			3,
+			$Dto->getParameter( 'inventory' )
+				 ->getChild( 2 )
+				 ->getParameter( 'amount' )
+				 ->getValue()
+		);
+
+		$this->assertEquals(
+			3,
+			count( $Dto->getParameter( 'inventory' )->getChildren() )
+		);
+
+		$this->assertIsArray( $Dto->inventory );
+
+		$this->assertEquals(
+			3,
+			$Dto->inventory[ 2 ]->amount
 		);
 	}
 

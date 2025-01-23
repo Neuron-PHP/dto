@@ -27,6 +27,12 @@ class DtoFactoryTest extends TestCase
 		$this->assertIsObject( $Dto );
 
 		$this->assertEquals(
+			'array',
+			$Dto->getParameter( 'inventory' )
+				 ->getType()
+		);
+
+		$this->assertEquals(
 			$Dto,
 			$Dto->getParameter( 'address' )
 				 ->getValue()

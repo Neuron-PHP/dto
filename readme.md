@@ -132,15 +132,29 @@ $Payload = [
             'city'   => 'Mockingbird Heights',
             'state'  => 'CA',
             'zip'    => '90210'
+        ],
+        'inventory' => [
+            [
+                'name' => 'shoes',
+                'amount' => 1
+            ],
+            [
+                'name' => 'jackets',
+                'amount' => 2
+            ],
+            [
+                'name' => 'pants',
+                'amount' => 3
+            ]
         ]
     ]
 ];
 
 $Mapper->map( $Dto, $Payload );
 
-echo $Dto->username;
+echo $Dto->username; // outputs 'test'
+echo $Dto->inventory[ 1 ]->amount; // outputs 3
 ```
-Outputs: `test`
 
 # More Information
 

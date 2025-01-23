@@ -88,7 +88,7 @@ class Mapper
 	 * level1.level2.level3.parameter = value.
 	 *
 	 * @param array $Array
-	 * @param string|null $MasterKey
+	 * @param string|null $CurrentKey
 	 * @return void
 	 */
 	public function flattenFields( array $Array, ?string $CurrentKey = null ): void
@@ -147,7 +147,11 @@ class Mapper
 			if( $Parameter->getType() == 'object' )
 			{
 				$this->flattenParameters( $Parameter->getValue(), $MasterKey );
-				$MasterKey = null;
+			}
+			elseif( $Parameter->getType() == 'array' )
+			{
+				$this->_Parameters[ $Key ] = $Parameter;
+				$this->flattenParameters( $Parameter->getValue(), $MasterKey );
 			}
 			else
 			{
@@ -157,6 +161,7 @@ class Mapper
 	}
 
 	/**
+	 * Maps a Dto to an array using field mapping.
 	 * @throws ValidationException
 	 */
 	private function mapDto( Dto $Dto, array $Data ): Dto
@@ -166,6 +171,12 @@ class Mapper
 
 		foreach( $this->_Parameters as $Key => $Parameter )
 		{
+			if( $Parameter->getType() == 'array' )
+			{
+				$this->mapArray( $Key, $Parameter, $Data );
+				continue;
+			}
+
 			$FieldName = $this->getAlias( $Key );
 
 			$Value = $this->_Fields[ $FieldName ] ?? null;
@@ -179,41 +190,75 @@ class Mapper
 		$Dto->validate();
 
 		return $Dto;
+	}
 
+	/**
+	 * Returns an array of all parameters with keys that start with a specific string.
+	 * @param string $SearchKey
+	 * @return array
+	 */
+	private function getSubParameters( string $SearchKey ) : array
+	{
+		$Keys = array_keys( $this->_Parameters );
 
-		foreach( $Dto->getParameters() as $Parameter )
-		{
-			if( !isset( $Data[ $Parameter->getName() ] )  )
+		$MatchingKeys = array_filter(
+			$Keys,
+			function( $Key ) use ( $SearchKey )
 			{
-				$Dto->validateParameter( $Parameter );
-				continue;
+				if( str_starts_with( $Key, $SearchKey ) )
+					return $Key !== $SearchKey;
+				return false;
+			}
+		);
+
+		$Result = [];
+		foreach( $MatchingKeys as $Key )
+			$Result[ $Key ] = $this->_Parameters[ $Key ] ?? null;
+
+		return $Result;
+	}
+
+	/**
+	 * Dynamically maps arrays by creating sub Dtos.
+	 * @param string $Key
+	 * @param Parameter $Parameter
+	 * @param array $Data
+	 * @return void
+	 */
+	private function mapArray( string $Key, Parameter $Parameter, array $Data ) : void
+	{
+		$Process = true;
+		$Index = 0;
+		$Value = null;
+
+		$SubParameters = $this->getSubParameters( $Key );
+
+		while( $Process )
+		{
+			$Dto = new Dto();
+			foreach( $SubParameters as $SubParameter )
+			{
+				$FieldKey = $this->getAlias( $Key ).'.'.$Index.'.'.$SubParameter->getName();
+
+				$Value = $this->_Fields[ $FieldKey ] ?? null;
+
+				if( $Value == null )
+				{
+					$Process = false;
+					break;
+				}
+
+				$NewParam = clone $SubParameter;
+				$NewParam->setValue( $Value );
+				$Dto->setParameter( $SubParameter->getName(), $NewParam );
 			}
 
-			if( $Parameter->getType() === 'object' )
+			if( count( $Dto->getParameters() ) )
 			{
-				try
-				{
-					$this->mapDto( $Parameter->getValue(), $Data[ $Parameter->getName() ] );
-					$Parameter->getValue()->setParent( $Dto );
-				}
-				catch( ValidationException $Exception )
-				{
-					Log::warning( $Exception->getMessage() );
-					$Dto->addErrors( $Exception->getErrors() );
-				}
-				continue;
+				$Parameter->addChild( $Dto );
 			}
 
-			$Parameter->setValue( $Data[ $Parameter->getName() ] );
-
-			$Dto->validateParameter( $Parameter );
+			$Index++;
 		}
-
-		if( !empty( $Dto->getErrors() ) )
-		{
-			throw new ValidationException( $Dto->getName(), $Dto->getErrors() );
-		}
-
-		return $Dto;
 	}
 }
