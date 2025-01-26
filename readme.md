@@ -148,15 +148,26 @@ $Payload = [
         'inventory' => [
             [
                 'name' => 'shoes',
-                'amount' => 1
+                'count' => 1,
+                'attributes' => [
+                    [
+                        'name' => 'leather',
+                    ],
+                    [
+                        'name' => 'boot',
+                    ],
+                    [
+                        'name' =>'smelly'
+                    ]
+                ]
             ],
             [
                 'name' => 'jackets',
-                'amount' => 2
+                'count' => 2
             ],
             [
                 'name' => 'pants',
-                'amount' => 3
+                'count' => 3
             ]
         ]
     ]
@@ -166,6 +177,8 @@ $Mapper->map( $Dto, $Payload );
 
 echo $Dto->username; // outputs 'test'
 echo $Dto->inventory[ 1 ]->amount; // outputs 3
+echo $Dto->inventory[ 0 ]->attributes[ 1 ]->name; // outputs 'boot'
+
 ```
 
 # More Information

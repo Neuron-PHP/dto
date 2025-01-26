@@ -300,6 +300,12 @@ class MapperTest extends TestCase
 			3,
 			$Dto->inventory[ 2 ]->amount
 		);
+
+		$this->assertEquals(
+			'boot',
+			$Dto->inventory[ 0 ]->attributes[ 1 ]->name
+		);
+
 	}
 
 	public function testMapFail()
