@@ -48,65 +48,65 @@ class DtoFactory
 
 		$Dto->setName( $Name );
 
-		foreach( $Data as $Name => $Parameter )
+		foreach( $Data as $Name => $ParamData )
 		{
-			$P = new Parameter();
-			$P->setName( $Name );
+			$Parameter = new Parameter();
+			$Parameter->setName( $Name );
 
-			if( isset( $Parameter[ 'required' ] ) )
+			if( isset( $ParamData[ 'required' ] ) )
 			{
-				$P->setRequired( $Parameter[ 'required' ] );
+				$Parameter->setRequired( $ParamData[ 'required' ] );
 			}
 
-			$P->setType( $Parameter[ 'type' ] );
+			$Parameter->setType( $ParamData[ 'type' ] );
 
-			if( $P->getType() === 'object' || $P->getType() === 'array' )
+			if( $Parameter->getType() === 'object' || $Parameter->getType() === 'array' )
 			{
-				$ParamDto = $this->createDto( $Name, $Parameter[ 'properties' ] );
+				$ParamDto = $this->createDto( $Name, $ParamData[ 'properties' ] );
 				$ParamDto->setParent( $Dto );
-				$P->setValue( $ParamDto );
+				$Parameter->setValue( $ParamDto );
 			}
 
-			if( isset( $Parameter[ 'length' ] ) )
+			if( isset( $ParamData[ 'length' ] ) )
 			{
 				$Min = $Max = 0;
 
-				if( isset( $Parameter[ 'length' ][ 'min' ] ) )
+				if( isset( $ParamData[ 'length' ][ 'min' ] ) )
 				{
-					$Min =  $Parameter[ 'length' ][ 'min' ];
+					$Min =  $ParamData[ 'length' ][ 'min' ];
 				}
 
-				if( isset( $Parameter[ 'length' ][ 'max' ] ) )
+				if( isset( $ParamData[ 'length' ][ 'max' ] ) )
 				{
-					$Max =  $Parameter[ 'length' ][ 'max' ];
+					$Max =  $ParamData[ 'length' ][ 'max' ];
 				}
 
-				$P->setLengthRange( $Min, $Max );
+				$Parameter->setLengthRange( $Min, $Max );
 			}
 
-			if( isset( $Parameter[ 'range' ] ) )
+			if( isset( $ParamData[ 'range' ] ) )
 			{
 				$Min = $Max = 0;
 
-				if( isset( $Parameter[ 'range' ][ 'min' ] ) )
+				if( isset( $ParamData[ 'range' ][ 'min' ] ) )
 				{
-					$Min = $Parameter[ 'range' ][ 'min' ];
+					$Min = $ParamData[ 'range' ][ 'min' ];
 				}
 
-				if( isset( $Parameter[ 'range' ][ 'max' ] ) )
+				if( isset( $ParamData[ 'range' ][ 'max' ] ) )
 				{
-					$Max = $Parameter[ 'range' ][ 'max' ];
+					$Max = $ParamData[ 'range' ][ 'max' ];
 				}
 
-				$P->setValueRange( $Min, $Max );
+				$Parameter->setValueRange( $Min, $Max );
 			}
 
-			if( isset( $Parameter[ 'pattern' ] ) )
+			if( isset( $ParamData[ 'pattern' ] ) )
 			{
-				$P->setPattern( $Parameter[ 'pattern' ] );
+				$Parameter->setPattern( $ParamData[ 'pattern' ] );
 			}
 
-			$Dto->setParameter( $P->getName(), $P );
+			$Dto->setParameter( $Parameter->getName(), $Parameter );
 		}
 
 		return $Dto;

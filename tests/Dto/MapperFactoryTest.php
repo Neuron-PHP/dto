@@ -16,8 +16,8 @@ class MapperFactoryTest extends TestCase
 		$this->assertIsObject( $Mapper );
 
 		$this->assertEquals(
-			'user.name',
-			$Mapper->getAlias( 'test.username' )
+			'test.username',
+			$Mapper->getAlias( 'user.name' )
 		);
 	}
 

@@ -2,7 +2,7 @@
 
 namespace Neuron\Dto;
 
-class ParameterNotFoundException extends \Exception
+class MapNotFoundException extends \Exception
 {
 	public function __construct( string $Name )
 	{

@@ -20,6 +20,7 @@ class Parameter
 	/**
 	 *
 	 */
+
 	public function __construct()
 	{
 		$this->_Errors		= [];
@@ -28,25 +29,25 @@ class Parameter
 		$this->_Type		= '';
 
 		$this->_TypeValidators = [
-			'array'					=> new Validation\IsArray(),
-			'boolean'				=> new Validation\IsBoolean(),
-			'currency'				=> new Validation\IsCurrency(),
-			'date'					=> new Validation\IsDate(),
-			'date_time'				=> new Validation\IsDateTime(),
-			'ein'						=> new Validation\IsEin(),
-			'email'					=> new Validation\IsEmail(),
-			'float'					=> new Validation\IsFloatingPoint(),
-			'integer'				=> new Validation\IsInteger(),
-			'ip_address'			=> new Validation\IsIpAddress(),
-			'name'					=> new Validation\IsName(),
-			'numeric'				=> new Validation\IsNumeric(),
-			'object'					=> new Validation\IsObject(),
-			'string'					=> new Validation\IsString(),
-			'time'					=> new Validation\IsTime(),
-			'upc'						=> new Validation\IsUpc(),
-			'url'						=> new Validation\IsUrl(),
-			'us_phone_number'		=> new Validation\IsPhoneNumber(),
-			'intl_phone_number' 	=> new Validation\IsPhoneNumber( Validation\IsPhoneNumber::INTERNATIONAL )
+			'array'				=> new Validation\IsObject(),
+			'boolean'			=> new Validation\IsBoolean(),
+			'currency'			=> new Validation\IsCurrency(),
+			'date'				=> new Validation\IsDate(),
+			'date_time'			=> new Validation\IsDateTime(),
+			'ein'				=> new Validation\IsEin(),
+			'email'				=> new Validation\IsEmail(),
+			'float'				=> new Validation\IsFloatingPoint(),
+			'integer'			=> new Validation\IsInteger(),
+			'ip_address'		=> new Validation\IsIpAddress(),
+			'name'				=> new Validation\IsName(),
+			'numeric'			=> new Validation\IsNumeric(),
+			'object'			=> new Validation\IsObject(),
+			'string'			=> new Validation\IsString(),
+			'time'				=> new Validation\IsTime(),
+			'upc'				=> new Validation\IsUpc(),
+			'url'				=> new Validation\IsUrl(),
+			'us_phone_number'	=> new Validation\IsPhoneNumber(),
+			'intl_phone_number'	=> new Validation\IsPhoneNumber( Validation\IsPhoneNumber::INTERNATIONAL )
 		];
 
 		$this->_Validators = new Validation\Collection();
@@ -55,32 +56,55 @@ class Parameter
 	/**
 	 * @param Dto $Dto
 	 * @return void
+	 * @throws \Exception
 	 */
+
 	public function addChild( Dto $Dto ) : void
 	{
+		if( $this->getType() !== 'array' )
+		{
+			throw new \Exception( $this->getName().' Array operation on a non array type.' );
+		}
+
 		$this->_Children[] = $Dto;
 	}
 
 	/**
 	 * @return array
+	 * @throws \Exception
 	 */
+
 	public function getChildren() : array
 	{
+		if( $this->getType() !== 'array' )
+		{
+			throw new \Exception( 'Array operation on a non array type.' );
+		}
+
 		return $this->_Children;
 	}
 
 	/**
 	 * @param int $Offset
-	 * @return Dto
+	 * @return ?Dto
+	 * @throws \Exception
 	 */
-	public function getChild( int $Offset ) : Dto
+
+	public function getChild( int $Offset ) : ?Dto
 	{
-		return $this->_Children[ $Offset ];
+		if( $this->getType() !== 'array' )
+		{
+			Log::error( $this->getName().': Array operation on a non array type.' );
+			throw new \Exception( 'Array operation on a non array type.' );
+		}
+
+		return $this->_Children[ $Offset ] ?? null;
 	}
 
 	/**
 	 * @return string
 	 */
+
 	public function getName(): string
 	{
 		return $this->_Name;
@@ -90,6 +114,7 @@ class Parameter
 	 * @param string $Name
 	 * @return Parameter
 	 */
+
 	public function setName( string $Name ): Parameter
 	{
 		$this->_Name = $Name;
@@ -99,6 +124,7 @@ class Parameter
 	/**
 	 * @return bool
 	 */
+
 	public function isRequired(): bool
 	{
 		return $this->_Required;
@@ -108,6 +134,7 @@ class Parameter
 	 * @param bool $Required
 	 * @return Parameter
 	 */
+
 	public function setRequired( bool $Required ): Parameter
 	{
 		$this->_Required = $Required;
@@ -117,6 +144,7 @@ class Parameter
 	/**
 	 * @return string
 	 */
+
 	public function getType(): string
 	{
 		return $this->_Type;
@@ -127,6 +155,7 @@ class Parameter
 	 * @return Parameter
 	 * @throws \Exception
 	 */
+
 	public function setType( string $Type ): Parameter
 	{
 		$this->_Type = $Type;
@@ -148,6 +177,7 @@ class Parameter
 	 * @param int $Max
 	 * @return $this
 	 */
+
 	public function setLengthRange( int $Min, int $Max ): Parameter
 	{
 		$this->_Validators->remove( 'length' );
@@ -162,6 +192,8 @@ class Parameter
 	 * @param int $Max
 	 * @return $this
 	 */
+
+
 	public function setValueRange( int $Min, int $Max ): Parameter
 	{
 		$this->_Validators->remove( 'range' );
@@ -181,6 +213,7 @@ class Parameter
 	 * @param string $Pattern
 	 * @return Parameter
 	 */
+
 	public function setPattern( string $Pattern ): Parameter
 	{
 		$this->_Validators->remove( 'pattern' );
@@ -193,6 +226,7 @@ class Parameter
 	/**
 	 * @return mixed
 	 */
+
 	public function getValue(): mixed
 	{
 		return $this->_Value;
@@ -201,22 +235,30 @@ class Parameter
 	/**
 	 * @param mixed $Value
 	 * @return Parameter
+	 * @throws ValidationException
 	 */
+
 	public function setValue( mixed $Value ): Parameter
 	{
 		$this->_Value = $Value;
+
+		$this->validate();
+
 		return $this;
 	}
 
 	/**
 	 * @throws ValidationException
 	 */
+
 	public function validate(): void
 	{
 		if( $this->validateRequired() && $this->_Value )
 		{
 			$this->_Validators->isValid( $this->_Value );
 		}
+
+		// @todo if array, validate children.
 
 		$Violations = $this->_Validators->getViolations();
 		if( count( $Violations ) )
@@ -239,6 +281,7 @@ class Parameter
 	/**
 	 * @return bool
 	 */
+
 	private function validateRequired(): bool
 	{
 		if( $this->_Required && !$this->_Value )

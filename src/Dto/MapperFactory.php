@@ -11,6 +11,7 @@ class MapperFactory
 	/**
 	 * @param string $FileName
 	 */
+
 	public function __construct( string $FileName )
 	{
 		$this->_FileName = $FileName;
@@ -19,6 +20,7 @@ class MapperFactory
 	/**
 	 * @return string
 	 */
+
 	public function getFileName(): string
 	{
 		return $this->_FileName;
@@ -27,6 +29,7 @@ class MapperFactory
 	/**
 	 * @return Mapper
 	 */
+
 	public function create() : Mapper
 	{
 		$Name = pathinfo( $this->_FileName )[ 'filename' ];
@@ -40,6 +43,7 @@ class MapperFactory
 	 * @param array $Data
 	 * @return Mapper
 	 */
+
 	protected function createMapper( string $Name, array $Data ) : Mapper
 	{
 		$Mapper = new Mapper();

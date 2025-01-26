@@ -6,6 +6,11 @@ map:
   test.address.city: user.address.city
   test.address.state: user.address.state
   test.address.zip: user.address.zip
+
   test.inventory: user.inventory
   test.inventory.name: user.inventory.name
-  test.inventory.amount: user.inventory.amount
+  test.inventory.amount: user.inventory.count
+  test.inventory.item.attributes: user.inventory.attributes
+  test.inventory.item.attributes.name: user.inventory.attributes.name
+
+

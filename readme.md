@@ -43,6 +43,18 @@ dto:
     type: string
     format: date
     pattern: '/^\d{4}-\d{2}-\d{2}$/'  # YYYY-MM-DD format
+  inventory:  
+    type: array
+    properties:
+      item:
+        type: object
+        properties:
+          name:
+            required: true
+            type: string
+          amount:
+            required: true
+            type: integer
   address:
     required: true
     type: object

@@ -32,6 +32,14 @@ dto:
           amount:
             required: true
             type: integer
+          attributes:
+            type: array
+            properties:
+              item:
+                type: object
+                properties:
+                  name:
+                    type: string
   address:
     required: true
     type: object
