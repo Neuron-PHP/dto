@@ -46,6 +46,7 @@ class Parameter
 			'time'				=> new Validation\IsTime(),
 			'upc'				=> new Validation\IsUpc(),
 			'url'				=> new Validation\IsUrl(),
+			'uuid'				=> new Validation\IsUuid(),
 			'us_phone_number'	=> new Validation\IsPhoneNumber(),
 			'intl_phone_number'	=> new Validation\IsPhoneNumber( Validation\IsPhoneNumber::INTERNATIONAL )
 		];

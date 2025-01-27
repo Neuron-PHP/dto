@@ -1,4 +1,7 @@
-[![Build Status](https://app.travis-ci.com/Neuron-PHP/mvc.svg?token=F8zCwpT7x7Res7J2N4vF&branch=master)](https://app.travis-ci.com/Neuron-PHP/mvc)
+Develop: [![Build Status](https://app.travis-ci.com/Neuron-PHP/dto.svg?token=F8zCwpT7x7Res7J2N4vF&branch=develop)](https://app.travis-ci.com/Neuron-PHP/dto)
+
+Master: [![Build Status](https://app.travis-ci.com/Neuron-PHP/dto.svg?token=F8zCwpT7x7Res7J2N4vF&branch=master)](https://app.travis-ci.com/Neuron-PHP/dto)
+
 # Neuron-PHP DTO
 
 ## Installation
