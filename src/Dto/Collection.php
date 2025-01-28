@@ -44,7 +44,6 @@ class Collection extends CompoundBase
 			if( count( $this->_Children ) >= $this->_ValidRange->Maximum )
 			{
 				$Message = "Items for {$this->getName()} would exceed the maximum range of {$this->_ValidRange->Maximum}";
-				Log::warning( "Items for {$this->getName()} would exceed the maximum range of {$this->_ValidRange->Maximum}" );
 				$this->addErrors( [ $Message ] );
 			}
 		}

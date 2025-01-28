@@ -2,6 +2,7 @@
 
 namespace Neuron\Dto;
 
+use Exception;
 use Neuron\Log\Log;
 
 /**
@@ -122,32 +123,85 @@ class Dto extends CompoundBase
 	 * Validates the values for all parameters.
 	 *
 	 * @return void
+	 * @throws ValidationException
 	 */
 
 	public function validate() : void
 	{
 		$Parameters = $this->getProperties();
 
-		foreach( $Parameters as $Parameter )
+		foreach( $Parameters as $Property )
 		{
-			if( $Parameter->getType() == 'object')
-			{
-				$Dto = $Parameter->getValue();
-				$Dto->validate();
-				$this->addErrors( $Dto->getErrors() );
-			}
-			else
-			{
-				try
-				{
-					$Parameter->validate();
-				}
-				catch( ValidationException $Exception )
-				{
-					Log::warning( $Exception->getMessage() );
-					$this->addErrors( $Exception->getErrors() );
-				}
-			}
+			$this->validateProperty( $Property );
+		}
+
+		foreach( $this->getErrors() as $Error )
+		{
+			Log::error( $Error );
+		}
+	}
+
+	/**
+	 * @param mixed $Property
+	 * @return void
+	 * @throws ValidationException
+	 */
+	protected function validateProperty( mixed $Property ): void
+	{
+		if( $Property->getType() == 'object' )
+		{
+			$this->validateDto( $Property->getValue() );
+		}
+		elseif( $Property->getType() == 'array' )
+		{
+			$this->validateArray( $Property->getValue() );
+		}
+		else
+		{
+			$this->validateScalar( $Property );
+		}
+	}
+
+	/**
+	 * @param Dto $Dto
+	 * @return void
+	 * @throws ValidationException
+	 */
+	protected function validateDto( Dto $Dto ): void
+	{
+		$Dto->validate();
+		$this->addErrors( $Dto->getErrors() );
+	}
+
+	/**
+	 * @param Collection $Collection
+	 * @return void
+	 * @throws ValidationException
+	 * @throws Exception
+	 */
+	protected function validateArray( Collection $Collection ): void
+	{
+		$this->addErrors( $Collection->getErrors() );
+
+		foreach( $Collection->getChildren() as $Item )
+		{
+			$this->validateScalar( $Item );
+		}
+	}
+
+	/**
+	 * @param mixed $Property
+	 * @return void
+	 */
+	protected function validateScalar( mixed $Property ): void
+	{
+		try
+		{
+			$Property->validate();
+		}
+		catch( ValidationException $Exception )
+		{
+			$this->addErrors( $Exception->getErrors() );
 		}
 	}
 }

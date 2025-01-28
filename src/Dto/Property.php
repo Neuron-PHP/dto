@@ -15,7 +15,6 @@ class Property
 	private array	$_TypeValidators;
 	private Validation\Collection $_Validators;
 
-
 	/**
 	 *
 	 */
@@ -28,25 +27,25 @@ class Property
 		$this->_Type		= '';
 
 		$this->_TypeValidators = [
-			'array'				=> new Validation\IsObject(),
-			'boolean'			=> new Validation\IsBoolean(),
-			'currency'			=> new Validation\IsCurrency(),
-			'date'				=> new Validation\IsDate(),
-			'date_time'			=> new Validation\IsDateTime(),
-			'ein'				=> new Validation\IsEin(),
-			'email'				=> new Validation\IsEmail(),
-			'float'				=> new Validation\IsFloatingPoint(),
-			'integer'			=> new Validation\IsInteger(),
-			'ip_address'		=> new Validation\IsIpAddress(),
-			'name'				=> new Validation\IsName(),
-			'numeric'			=> new Validation\IsNumeric(),
-			'object'			=> new Validation\IsObject(),
-			'string'			=> new Validation\IsString(),
-			'time'				=> new Validation\IsTime(),
-			'upc'				=> new Validation\IsUpc(),
-			'url'				=> new Validation\IsUrl(),
-			'uuid'				=> new Validation\IsUuid(),
-			'us_phone_number'	=> new Validation\IsPhoneNumber(),
+			'array'					=> new Validation\IsObject(),
+			'boolean'				=> new Validation\IsBoolean(),
+			'currency'				=> new Validation\IsCurrency(),
+			'date'					=> new Validation\IsDate(),
+			'date_time'				=> new Validation\IsDateTime(),
+			'ein'						=> new Validation\IsEin(),
+			'email'					=> new Validation\IsEmail(),
+			'float'					=> new Validation\IsFloatingPoint(),
+			'integer'				=> new Validation\IsInteger(),
+			'ip_address'			=> new Validation\IsIpAddress(),
+			'name'					=> new Validation\IsName(),
+			'numeric'				=> new Validation\IsNumeric(),
+			'object'					=> new Validation\IsObject(),
+			'string'					=> new Validation\IsString(),
+			'time'					=> new Validation\IsTime(),
+			'upc'						=> new Validation\IsUpc(),
+			'url'						=> new Validation\IsUrl(),
+			'uuid'					=> new Validation\IsUuid(),
+			'us_phone_number'		=> new Validation\IsPhoneNumber(),
 			'intl_phone_number'	=> new Validation\IsPhoneNumber( Validation\IsPhoneNumber::INTERNATIONAL )
 		];
 
@@ -195,8 +194,6 @@ class Property
 	{
 		$this->_Value = $Value;
 
-		$this->validate();
-
 		return $this;
 	}
 
@@ -211,9 +208,8 @@ class Property
 			$this->_Validators->isValid( $this->_Value );
 		}
 
-		// @todo if array, validate children.
-
 		$Violations = $this->_Validators->getViolations();
+
 		if( count( $Violations ) )
 		{
 			foreach( $Violations as $Error )
@@ -228,7 +224,6 @@ class Property
 		{
 			throw new ValidationException( $this->_Name, $this->_Errors );
 		}
-
 	}
 
 	/**
@@ -237,10 +232,19 @@ class Property
 
 	private function validateRequired(): bool
 	{
-		if( $this->_Required && !$this->_Value )
+		if( $this->_Required )
 		{
-			$this->_Errors[] = $this->_Name.": value is required.";
-			return false;
+			if( $this->getType() == 'array' && !count( $this->getValue()->getChildren() ) )
+			{
+				$this->_Errors[] = $this->_Name . ": array item is required.";
+				return false;
+			}
+
+			if( !$this->_Value )
+			{
+				$this->_Errors[] = $this->_Name.": value is required.";
+				return false;
+			}
 		}
 
 		return true;
