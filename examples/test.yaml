@@ -33,6 +33,7 @@ dto:
           type: integer
         attributes:
           type: array
+          max: 2
           items:
             type: string
   address:

@@ -108,6 +108,12 @@ class DtoFactory
 		if( $Property->getType() === 'array' )
 		{
 			$ParamDto = $this->createArray( $Name, $PropertyData[ 'items' ] );
+			if( isset( $PropertyData[ 'max' ] ) )
+			{
+				$Max = $PropertyData[ 'max' ];
+				$ParamDto->setRange( 0, $Max );
+			}
+
 			$ParamDto->setParent( $Parent );
 			$Property->setValue( $ParamDto );
 		}
