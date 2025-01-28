@@ -141,13 +141,13 @@ class Property
 	}
 
 	/**
-	 * @param int $Min
-	 * @param int $Max
+	 * @param mixed $Min
+	 * @param mixed $Max
 	 * @return $this
 	 */
 
 
-	public function setValueRange( int $Min, int $Max ): Property
+	public function setValueRange( mixed $Min, mixed $Max ): Property
 	{
 		$this->_Validators->remove( 'range' );
 
