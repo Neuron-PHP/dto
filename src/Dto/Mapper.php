@@ -357,8 +357,7 @@ class Mapper
 
 	private function mapDto( Dto $Dto, array $Data ): void
 	{
-		$this->flattenProperties( $Dto );
-		$this->flattenFields( $Data );
+		$this->createDataMap( $Dto, $Data );
 
 		foreach( $this->_Aliases as $Alias => $ParamName )
 		{
@@ -484,5 +483,16 @@ class Mapper
 		}
 
 		$Array->setValue( $Value );
+	}
+
+	/**
+	 * @param Dto $Dto
+	 * @param array $Data
+	 * @return void
+	 */
+	public function createDataMap( Dto $Dto, array $Data ): void
+	{
+		$this->flattenProperties( $Dto );
+		$this->flattenFields( $Data );
 	}
 }

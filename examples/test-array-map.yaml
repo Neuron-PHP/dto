@@ -1,9 +1,8 @@
 map:
-  properties:
-    test.username: user_name
-    test.password: password
-    test.age: age
-    test.address.street: street
-    test.address.city: city
-    test.address.state: state
-    test.address.zip: zip
+  test.username: user_name
+  test.password: password
+  test.age: age
+  test.address.street: street
+  test.address.city: city
+  test.address.state: state
+  test.address.zip: zip
