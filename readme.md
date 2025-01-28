@@ -48,16 +48,19 @@ dto:
     pattern: '/^\d{4}-\d{2}-\d{2}$/'  # YYYY-MM-DD format
   inventory:  
     type: array
-    properties:
-      item:
-        type: object
-        properties:
-          name:
-            required: true
+    items:
+      type: object
+      properties:
+        name:
+          required: true
+          type: string
+        amount:
+          required: true
+          type: integer
+        attributes:
+          type: array
+          items:
             type: string
-          amount:
-            required: true
-            type: integer
   address:
     required: true
     type: object
@@ -124,10 +127,16 @@ map:
   test.username: user.name
   test.password: user.password
   test.age: user.age
+  
   test.address.street: user.address.street
   test.address.city: user.address.city
   test.address.state: user.address.state
   test.address.zip: user.address.zip
+
+  test.inventory: user.inventory
+  test.inventory.name: user.inventory.name
+  test.inventory.amount: user.inventory.count
+  test.inventory.attributes: user.inventory.attributes
 ```
 
 Create a mapper, ingest and map external data.
@@ -180,7 +189,7 @@ $Mapper->map( $Dto, $Payload );
 
 echo $Dto->username; // outputs 'test'
 echo $Dto->inventory[ 1 ]->amount; // outputs 3
-echo $Dto->inventory[ 0 ]->attributes[ 1 ]->name; // outputs 'boot'
+echo $Dto->inventory[ 0 ]->attributes[ 1 ]; // outputs 'boot'
 
 ```
 
