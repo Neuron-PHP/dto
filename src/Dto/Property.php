@@ -115,7 +115,7 @@ class Property
 
 		if( !array_key_exists( $this->getType(), $this->_TypeValidators ) )
 		{
-			throw new \Exception('Invalid type specified.');
+			throw new \Exception($this->getName().": Invalid type '{$Type}." );
 		}
 
 		$this->_Validators->remove( 'type' );
