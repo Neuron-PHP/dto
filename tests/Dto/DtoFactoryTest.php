@@ -28,13 +28,13 @@ class DtoFactoryTest extends TestCase
 
 		$this->assertEquals(
 			'array',
-			$Dto->getParameter( 'inventory' )
+			$Dto->getProperty( 'inventory' )
 				 ->getType()
 		);
 
 		$this->assertEquals(
 			$Dto,
-			$Dto->getParameter( 'address' )
+			$Dto->getProperty( 'address' )
 				 ->getValue()
 				 ->getParent()
 		);

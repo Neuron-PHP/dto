@@ -173,7 +173,7 @@ class ParameterTest extends TestCase
 
 		try
 		{
-			$this->Dto->getParameter( 'age' )->setType( 'monkey' );
+			$this->Dto->getProperty( 'age' )->setType( 'monkey' );
 		}
 		catch( \Exception $Exception )
 		{
@@ -185,7 +185,7 @@ class ParameterTest extends TestCase
 
 	public function testValidatePattern()
 	{
-		$this->Dto->getParameter( 'username' )->setPattern( '/^[a-zA-Z0-9]+$/' );
+		$this->Dto->getProperty( 'username' )->setPattern( '/^[a-zA-Z0-9]+$/' );
 
 		$this->Dto->username = 'testname';
 
@@ -204,8 +204,8 @@ class ParameterTest extends TestCase
 
 	public function testRequired()
 	{
-		$this->Dto->getParameter( 'age' )->setRequired( true );
+		$this->Dto->getProperty( 'age' )->setRequired( true );
 
-		$this->assertTrue( $this->Dto->getParameter( 'age' )->isRequired() );
+		$this->assertTrue( $this->Dto->getProperty( 'age' )->isRequired() );
 	}
 }

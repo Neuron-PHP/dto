@@ -12,6 +12,7 @@ class DtoFactory
 	/**
 	 * @param string $FileName
 	 */
+
 	public function __construct( string $FileName )
 	{
 		$this->_FileName = $FileName;
@@ -20,7 +21,8 @@ class DtoFactory
 	/**
 	 * @return string
 	 */
-	public function getFileName() : string
+
+	public function getFileName(): string
 	{
 		return $this->_FileName;
 	}
@@ -28,7 +30,8 @@ class DtoFactory
 	/**
 	 * @throws Exception
 	 */
-	public function create() : Dto
+
+	public function create(): Dto
 	{
 		$Name = pathinfo( $this->_FileName )[ 'filename' ];
 		$Data = Yaml::parseFile( $this->_FileName );
@@ -42,6 +45,7 @@ class DtoFactory
 	 * @return Dto
 	 * @throws Exception
 	 */
+
 	protected function createDto( string $Name, array $Data ) : Dto
 	{
 		$Dto = new Dto();
@@ -50,65 +54,129 @@ class DtoFactory
 
 		foreach( $Data as $Name => $ParamData )
 		{
-			$Parameter = new Parameter();
-			$Parameter->setName( $Name );
-
-			if( isset( $ParamData[ 'required' ] ) )
-			{
-				$Parameter->setRequired( $ParamData[ 'required' ] );
-			}
-
-			$Parameter->setType( $ParamData[ 'type' ] );
-
-			if( $Parameter->getType() === 'object' || $Parameter->getType() === 'array' )
-			{
-				$ParamDto = $this->createDto( $Name, $ParamData[ 'properties' ] );
-				$ParamDto->setParent( $Dto );
-				$Parameter->setValue( $ParamDto );
-			}
-
-			if( isset( $ParamData[ 'length' ] ) )
-			{
-				$Min = $Max = 0;
-
-				if( isset( $ParamData[ 'length' ][ 'min' ] ) )
-				{
-					$Min =  $ParamData[ 'length' ][ 'min' ];
-				}
-
-				if( isset( $ParamData[ 'length' ][ 'max' ] ) )
-				{
-					$Max =  $ParamData[ 'length' ][ 'max' ];
-				}
-
-				$Parameter->setLengthRange( $Min, $Max );
-			}
-
-			if( isset( $ParamData[ 'range' ] ) )
-			{
-				$Min = $Max = 0;
-
-				if( isset( $ParamData[ 'range' ][ 'min' ] ) )
-				{
-					$Min = $ParamData[ 'range' ][ 'min' ];
-				}
-
-				if( isset( $ParamData[ 'range' ][ 'max' ] ) )
-				{
-					$Max = $ParamData[ 'range' ][ 'max' ];
-				}
-
-				$Parameter->setValueRange( $Min, $Max );
-			}
-
-			if( isset( $ParamData[ 'pattern' ] ) )
-			{
-				$Parameter->setPattern( $ParamData[ 'pattern' ] );
-			}
-
-			$Dto->setParameter( $Parameter->getName(), $Parameter );
+			$Property = $this->createProperty( $Name, $ParamData, $Dto );
+			$Dto->setProperty( $Property->getName(), $Property  );
 		}
 
 		return $Dto;
+	}
+
+	/**
+	 * @param string $Name
+	 * @param array $Data
+	 * @return Collection
+	 * @throws ValidationException
+	 */
+
+	protected function createArray( string $Name, array $Data ): Collection
+	{
+		$Collection = new Collection();
+
+		$Collection->setName( $Name );
+
+		$Collection->setItemTemplate( $this->createProperty( 'item', $Data, $Collection ) );
+
+		return $Collection;
+	}
+	/**
+	 * @param int|string $Name
+	 * @param array $PropertyData
+	 * @param Dto $Parent
+	 * @return Property
+	 * @throws ValidationException
+	 */
+
+	protected function createProperty( int|string $Name, array $PropertyData, ICompound $Parent ): Property
+	{
+		$Property = new Property();
+		$Property->setName( $Name );
+
+		if( isset( $PropertyData[ 'required' ] ) )
+		{
+			$Property->setRequired( $PropertyData[ 'required' ] );
+		}
+
+		$Property->setType( $PropertyData[ 'type' ] );
+
+		if( $Property->getType() === 'object' )
+		{
+			$ParamDto = $this->createDto( $Name, $PropertyData[ 'properties' ] );
+			$ParamDto->setParent( $Parent );
+			$Property->setValue( $ParamDto );
+		}
+
+		if( $Property->getType() === 'array' )
+		{
+			$ParamDto = $this->createArray( $Name, $PropertyData[ 'items' ] );
+			$ParamDto->setParent( $Parent );
+			$Property->setValue( $ParamDto );
+		}
+
+		if( isset( $PropertyData[ 'length' ] ) )
+		{
+			$this->setLengthRange( $PropertyData, $Property );
+		}
+
+		if( isset( $PropertyData[ 'range' ] ) )
+		{
+			$this->setValueRange( $PropertyData, $Property );
+		}
+
+		if( isset( $PropertyData[ 'pattern' ] ) )
+		{
+			$Property->setPattern( $PropertyData[ 'pattern' ] );
+		}
+
+		return $Property;
+	}
+
+	/**
+	 * @param array $PropertyData
+	 * @param Property $Property
+	 * @return Property
+	 */
+
+	protected function setLengthRange( array $PropertyData, Property $Property ): Property
+	{
+		$Min = $Max = 0;
+
+		if( isset( $PropertyData[ 'length' ][ 'min' ] ) )
+		{
+			$Min = $PropertyData[ 'length' ][ 'min' ];
+		}
+
+		if( isset( $PropertyData[ 'length' ][ 'max' ] ) )
+		{
+			$Max = $PropertyData[ 'length' ][ 'max' ];
+		}
+
+		$Property->setLengthRange( $Min, $Max );
+
+		return $Property;
+	}
+
+	/**
+	 * @param array $PropertyData
+	 * @param Property $Property
+	 * @return mixed
+	 */
+
+	protected function setValueRange( array $PropertyData, Property $Property ): mixed
+	{
+		$Min = $Max = 0;
+
+		if( isset( $PropertyData[ 'range' ][ 'min' ] ) )
+		{
+			$Min = $PropertyData[ 'range' ][ 'min' ];
+		}
+
+		if( isset( $PropertyData[ 'range' ][ 'max' ] ) )
+		{
+			$Max = $PropertyData[ 'range' ][ 'max' ];
+		}
+
+		$Property->setValueRange( $Min, $Max );
+
+		return $Property;
 	}
 }

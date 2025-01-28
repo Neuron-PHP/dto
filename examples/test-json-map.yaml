@@ -10,7 +10,6 @@ map:
   test.inventory: user.inventory
   test.inventory.name: user.inventory.name
   test.inventory.amount: user.inventory.count
-  test.inventory.item.attributes: user.inventory.attributes
-  test.inventory.item.attributes.name: user.inventory.attributes.name
+  test.inventory.attributes: user.inventory.attributes
 
 

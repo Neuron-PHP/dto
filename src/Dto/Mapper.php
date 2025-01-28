@@ -2,15 +2,19 @@
 
 namespace Neuron\Dto;
 
+use Countable;
+use DeepCopy\DeepCopy;
+use DeepCopy\TypeFilter\Spl\ArrayObjectFilter;
 use Neuron\Log\Log;
 
 class Mapper
 {
+	private Dto		$_Dto;
 	private string	$_Name;
-	private array $_Aliases = [];
+	private array	$_Aliases = [];
 	private array	$_Fields;
-	private array	$_Parameters;
-	private bool	$_StrictErrors = false;
+	private array	$_Properties;
+	private bool 	$_StrictErrors = false;
 	private bool	$_StrictMapping = false;
 
 	public function __construct()
@@ -75,9 +79,9 @@ class Mapper
 	 * @return array
 	 */
 
-	public function getParameters() : array
+	public function getProperties() : array
 	{
-		return $this->_Parameters;
+		return $this->_Properties;
 	}
 
 	/**
@@ -133,11 +137,13 @@ class Mapper
 	 * @param Dto $Dto
 	 * @param array $Data
 	 * @return Dto
-	 * @throws ParameterNotFoundException|ValidationException
+	 * @throws ValidationException|MapNotFoundException
 	 */
 
 	public function map( Dto $Dto, array $Data ) : Dto
 	{
+		$this->_Dto = $Dto;
+
 		Log::debug( "Mapping {$Dto->getName()}..." );
 
 		$Dto->clearErrors();
@@ -195,25 +201,25 @@ class Mapper
 	 * @return void
 	 */
 
-	public function flattenParameters( Dto $Dto, ?string $MasterKey = null ): void
+	public function flattenProperties( ICompound $Dto, ?string $MasterKey = null ): void
 	{
 		$MasterKey .= ( $MasterKey ? '.' : '' ).$Dto->getName();
 
-		$Parameters = $Dto->getParameters();
+		$Properties = $Dto->getProperties();
 
-		/** @var Parameter $Parameter */
-		foreach( $Parameters as $Parameter )
+		/** @var Property $Property */
+		foreach( $Properties as $Property )
 		{
-			$Key = $MasterKey.'.'.$Parameter->getName();
+			$Key = $MasterKey.'.'.$Property->getName();
 
-			if( $Parameter->getType() == 'object' || $Parameter->getType() == 'array' )
+			if( $Property->getType() == 'object' )
 			{
-				$this->_Parameters[ $Key ] = $Parameter;
-				$this->flattenParameters( $Parameter->getValue(), $MasterKey );
+				$this->_Properties[ $Key ] = $Property;
+				$this->flattenProperties( $Property->getValue(), $MasterKey );
 			}
 			else
 			{
-				$this->_Parameters[ $Key ] = $Parameter;
+				$this->_Properties[ $Key ] = $Property;
 			}
 		}
 	}
@@ -222,42 +228,41 @@ class Mapper
 	 * Gets a dto parameter based on its assigned alias.
 	 *
 	 * @param $Key
-	 * @return Parameter|null
+	 * @return Property|null
 	 */
 
-	protected function getParameterByAlias( string $Key ) : ?Parameter
+	protected function getPropertyByAlias( string $Key ) : ?Property
 	{
 		$Alias = $this->getAlias( $Key );
 
-		return $this->_Parameters[ $Alias ] ?? null;
+		return $this->_Properties[ $Alias ] ?? null;
 	}
 
 	/**
 	 * Gets a dto by its assigned key
 	 *
 	 * @param string $Key
-	 * @return Parameter|null
+	 * @return Property|null
 	 */
-	protected function getParameterByKey( string $Key ) : ?Parameter
+	protected function getPropertyByKey( string $Key ) : ?Property
 	{
-		return $this->_Parameters[ $Key ] ?? null;
+		return $this->_Properties[ $Key ] ?? null;
 	}
 
 	/**
 	 * Build a the data that represents a single array step within an assignment.
 	 *
-	 * @param string $ChildKey
 	 * @param string $ArrayKey
 	 * @param int $Element
 	 * @param string $Name
 	 * @return array
-	 * @throws ParameterNotFoundException
 	 */
 
-	protected function buildArrayPart( string $ChildKey, string $ArrayKey, int $Element, string $Name ): array
+	protected function buildArrayPart( string $ArrayKey, int $Element, string $Name ): array
 	{
 		$ArrayAlias = $this->getAlias( $ArrayKey );
-		$ChildAlias	= $this->getAlias( $ChildKey );
+
+		$Parts = explode( '.', $ArrayAlias );
 
 		if( strlen( $Name ) )
 		{
@@ -267,22 +272,17 @@ class Mapper
 
 			$ChildParts	= explode( '.', $TempKey );;
 			$Name 		= $ChildParts[ count( $ChildParts ) - 1 ];
-
-			$ChildAlias .= '.item.'.$Name;
-
-			$Parameter = $this->getParameterByKey( $ChildAlias );
 		}
 
 		return [
 			'Element'	=> $Element,
 			'ArrayKey'	=> $ArrayAlias,
-			'ChildKey'	=> $ChildAlias,
 			'Name'		=> $Name ?? ""
 		];
 	}
 
 	/**
-	 * Returns true if the Key apparently references an array.
+	 * Returns true if the Key references an array.
 	 *
 	 * @param string $Key
 	 * @return bool
@@ -307,30 +307,24 @@ class Mapper
 	 * Returns an array that represents the individual stages of single and multidimensional arrays.
 	 * ArrayKey points to the array.
 	 * Element is the index of the array element.
-	 * ChildKey points to the parameter being set in the array element.
+	 * ItemKey points to the parameter being set in the array element.
 	 * Name is the de-aliased name of the parameter to be set.
 	 *
 	 * @param string $Key
 	 * @return array|null
-	 * @throws ParameterNotFoundException
 	 */
 
 	public function getArrayPath( string $Key ) : ?array
 	{
-		$Data				= [];
-		$Element			= null;
-		$Parts			= explode( '.', $Key );
-		$ArrayKey		= '';
-		$ChildKey		= '';
-		$LastElement	= null;
+		$Data		= [];
+		$Parts		= explode( '.', $Key );
+		$ArrayKey	= '';
 
 		foreach( $Parts as $Index => $Part )
 		{
 			if( ctype_digit( $Part ) )
 			{
-				$Element			= (int)$Part;
-				$LastElement	= $Element;
-				$ArrayKey		= $ChildKey;
+				$Element	= (int)$Part;
 
 				if( $Index + 1 <= count( $Parts ) - 1 )
 				{
@@ -341,13 +335,11 @@ class Mapper
 					$Part = '';
 				}
 
-				$Data[] = $this->buildArrayPart( $ChildKey, $ArrayKey, $Element, $Part );
+				$Data[] = $this->buildArrayPart( $ArrayKey, $Element, $Part );
 			}
 			else
 			{
-				$Element		= null;
-				$ArrayKey	= $ChildKey;
-				$ChildKey	.= ( $ChildKey ? '.' : '' ) . $Part;
+				$ArrayKey .= ( $ArrayKey ? '.' : '' ) . $Part;
 			}
 		}
 
@@ -360,17 +352,17 @@ class Mapper
 	 * @param Dto $Dto
 	 * @param array $Data
 	 * @return void
-	 * @throws ParameterNotFoundException|ValidationException|MapNotFoundException
+	 * @throws ValidationException|MapNotFoundException
 	 */
 
 	private function mapDto( Dto $Dto, array $Data ): void
 	{
-		$this->flattenParameters( $Dto );
+		$this->flattenProperties( $Dto );
 		$this->flattenFields( $Data );
 
 		foreach( $this->_Aliases as $Alias => $ParamName )
 		{
-			if( !$this->getParameterByAlias( $Alias ) )
+			if( !$this->getPropertyByAlias( $Alias ) )
 			{
 				Log::warning( "Missing parameter for map $Alias : $ParamName" );
 			}
@@ -404,7 +396,7 @@ class Mapper
 
 	protected function mapScalar( int|string $Key, mixed $Value ): void
 	{
-		$Parameter = $this->getParameterByAlias( $Key );
+		$Parameter = $this->getPropertyByAlias( $Key );
 
 		if( $Parameter )
 		{
@@ -419,48 +411,78 @@ class Mapper
 
 	/**
 	 * Map single and multidimensional arrays.
+	 * This method walks through an array that contains parts
+	 * that represent an object and array offset within each part of the mapped field key
+	 * as, each field key can reference different offsets from multiple nested arrays.
+	 * A path must be walked through to get to the final value to be set and the
+	 * ArrayData is the map.
 	 *
-	 * @param array $Array
+	 * @param array $ArrayData
 	 * @param mixed $Value
 	 * @return void
-	 * @throws ParameterNotFoundException|ValidationException
+	 * @throws ValidationException
 	 * @throws \Exception
 	 */
 
-	protected function mapArray( array $Array, mixed $Value ): void
+	protected function mapArray( array $ArrayData, mixed $Value ): void
 	{
-		$Parent = null;
+		$Array = null;
 
-		foreach( $Array as $Part )
+		foreach( $ArrayData as $ArrayPart )
 		{
-			Log::debug( "Mapping key: {$Part['ArrayKey']}', Template: {$Part['ChildKey']}, Index: {$Part['Element']}, Parameter: {$Part['Name']}" );
+			Log::debug( "Mapping key: {$ArrayPart['ArrayKey']}', Index: {$ArrayPart['Element']}, Property: {$ArrayPart['Name']}" );
 
-			if( $Parent === null )
+			if( $Array === null )
 			{
-				$Parent = $this->getParameterByKey( $Part[ 'ArrayKey' ] );
+				$Array = $this->getPropertyByKey( $ArrayPart[ 'ArrayKey' ] );
 			}
 
-			$ChildDto = $Parent->getChild( $Part[ 'Element' ] );
+			$ArrayItem = $Array->getValue()->getChild( $ArrayPart[ 'Element' ] );
 
-			if( $ChildDto === null )
+			if( $ArrayItem === null )
 			{
-				$ChildDto = new Dto;
-				$Parent->addChild( $ChildDto );
+				// If array element doesn't exist, crate it by cloning the item template.
+
+				$Template = $Array->getValue()->getItemTemplate();
+
+				$DeepCopy = new DeepCopy();
+
+				if( is_object( $Template->getValue() ) )
+				{
+					// if it's an object, close the composite stored in the template value.
+
+					$ArrayItem = $DeepCopy->copy( $Template->getValue() );
+
+					$Array->getValue()
+						  ->addChild( $ArrayItem );
+
+					$ArrayItem = $ArrayItem->getProperty( $ArrayPart[ 'Name' ] );
+				}
+				else
+				{
+					// if it's a scalar value, clone the template and store
+					// the property as a parameter.
+
+					$ArrayItem = $DeepCopy->copy( $Template );
+
+					$Array->getValue()
+						  ->addChild( $ArrayItem );
+				}
+			}
+			else
+			{
+				if( get_class( $ArrayItem ) == Dto::class )
+				{
+					// If the object is a dto then set the next item as the property
+					// object specified by the name.
+
+					$ArrayItem = $ArrayItem->getProperty( $ArrayPart[ 'Name' ] );
+				}
 			}
 
-			$ChildParameter = $ChildDto->getParameter( $Part[ 'Name' ] );
-
-			if( !$ChildParameter )
-			{
-				$Template = $this->getParameterByKey( $Part[ 'ChildKey' ] );
-
-				$ChildParameter = ( clone $Template )->setName( $Part[ 'Name' ] );
-				$ChildDto->setParameter( $ChildParameter->getName(), $ChildParameter );
-			}
-
-			$Parent = $ChildParameter;
+			$Array = $ArrayItem;
 		}
 
-		$Parent->setValue( $Value );
+		$Array->setValue( $Value );
 	}
 }

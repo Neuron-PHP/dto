@@ -5,7 +5,7 @@ use Neuron\Data\Object\NumericRange;
 use Neuron\Log\Log;
 use Neuron\Validation;
 
-class Parameter
+class Property
 {
 	private array	$_Errors;
 	private string	$_Name;
@@ -15,7 +15,6 @@ class Parameter
 	private array	$_TypeValidators;
 	private Validation\Collection $_Validators;
 
-	private array $_Children = [];
 
 	/**
 	 *
@@ -54,53 +53,6 @@ class Parameter
 		$this->_Validators = new Validation\Collection();
 	}
 
-	/**
-	 * @param Dto $Dto
-	 * @return void
-	 * @throws \Exception
-	 */
-
-	public function addChild( Dto $Dto ) : void
-	{
-		if( $this->getType() !== 'array' )
-		{
-			throw new \Exception( $this->getName().' Array operation on a non array type.' );
-		}
-
-		$this->_Children[] = $Dto;
-	}
-
-	/**
-	 * @return array
-	 * @throws \Exception
-	 */
-
-	public function getChildren() : array
-	{
-		if( $this->getType() !== 'array' )
-		{
-			throw new \Exception( 'Array operation on a non array type.' );
-		}
-
-		return $this->_Children;
-	}
-
-	/**
-	 * @param int $Offset
-	 * @return ?Dto
-	 * @throws \Exception
-	 */
-
-	public function getChild( int $Offset ) : ?Dto
-	{
-		if( $this->getType() !== 'array' )
-		{
-			Log::error( $this->getName().': Array operation on a non array type.' );
-			throw new \Exception( 'Array operation on a non array type.' );
-		}
-
-		return $this->_Children[ $Offset ] ?? null;
-	}
 
 	/**
 	 * @return string
@@ -113,10 +65,10 @@ class Parameter
 
 	/**
 	 * @param string $Name
-	 * @return Parameter
+	 * @return Property
 	 */
 
-	public function setName( string $Name ): Parameter
+	public function setName( string $Name ): Property
 	{
 		$this->_Name = $Name;
 		return $this;
@@ -133,10 +85,10 @@ class Parameter
 
 	/**
 	 * @param bool $Required
-	 * @return Parameter
+	 * @return Property
 	 */
 
-	public function setRequired( bool $Required ): Parameter
+	public function setRequired( bool $Required ): Property
 	{
 		$this->_Required = $Required;
 		return $this;
@@ -153,11 +105,11 @@ class Parameter
 
 	/**
 	 * @param string $Type
-	 * @return Parameter
+	 * @return Property
 	 * @throws \Exception
 	 */
 
-	public function setType( string $Type ): Parameter
+	public function setType( string $Type ): Property
 	{
 		$this->_Type = $Type;
 
@@ -179,7 +131,7 @@ class Parameter
 	 * @return $this
 	 */
 
-	public function setLengthRange( int $Min, int $Max ): Parameter
+	public function setLengthRange( int $Min, int $Max ): Property
 	{
 		$this->_Validators->remove( 'length' );
 
@@ -195,7 +147,7 @@ class Parameter
 	 */
 
 
-	public function setValueRange( int $Min, int $Max ): Parameter
+	public function setValueRange( int $Min, int $Max ): Property
 	{
 		$this->_Validators->remove( 'range' );
 
@@ -212,10 +164,10 @@ class Parameter
 
 	/**
 	 * @param string $Pattern
-	 * @return Parameter
+	 * @return Property
 	 */
 
-	public function setPattern( string $Pattern ): Parameter
+	public function setPattern( string $Pattern ): Property
 	{
 		$this->_Validators->remove( 'pattern' );
 
@@ -235,11 +187,11 @@ class Parameter
 
 	/**
 	 * @param mixed $Value
-	 * @return Parameter
+	 * @return Property
 	 * @throws ValidationException
 	 */
 
-	public function setValue( mixed $Value ): Parameter
+	public function setValue( mixed $Value ): Property
 	{
 		$this->_Value = $Value;
 

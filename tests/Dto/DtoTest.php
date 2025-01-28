@@ -18,31 +18,31 @@ class DtoTest extends TestCase
 	public function testDto()
 	{
 		$this->assertIsArray(
-			$this->Dto->getParameters()
+			$this->Dto->getProperties()
 		);
 
 		$this->assertArrayHasKey(
 			'username',
-			$this->Dto->getParameters()
+			$this->Dto->getProperties()
 		);
 
 		$this->assertArrayHasKey(
 			'password',
-			$this->Dto->getParameters()
+			$this->Dto->getProperties()
 		);
 
 		$this->assertArrayHasKey(
 			'username',
-			$this->Dto->getParameters()
+			$this->Dto->getProperties()
 		);
 
-		$Address = $this->Dto->getParameter( 'address' )->getValue();
+		$Address = $this->Dto->getProperty( 'address' )->getValue();
 
 		$this->assertNotNull( $Address );
 
 		$this->assertArrayHasKey(
 			'street',
-			$Address->getParameters()
+			$Address->getProperties()
 		);
 	}
 }
