@@ -19,7 +19,6 @@ class Mapper
 
 	public function __construct()
 	{
-		Log::setRunLevel( 'debug' );
 	}
 
 	/**

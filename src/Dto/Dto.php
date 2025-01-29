@@ -213,4 +213,16 @@ class Dto extends CompoundBase
 			$this->addErrors( $Exception->getErrors() );
 		}
 	}
+
+	public function getAsJson(): string
+	{
+		$Result = '{';
+
+		foreach( $this->getProperties() as $Property )
+		{
+			$Result .= $Property->getAsJson();
+		}
+
+		return $Result.'}';
+	}
 }

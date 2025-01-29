@@ -145,7 +145,6 @@ class Property
 	 * @return $this
 	 */
 
-
 	public function setValueRange( mixed $Min, mixed $Max ): Property
 	{
 		$this->_Validators->remove( 'range' );
@@ -187,7 +186,6 @@ class Property
 	/**
 	 * @param mixed $Value
 	 * @return Property
-	 * @throws ValidationException
 	 */
 
 	public function setValue( mixed $Value ): Property
@@ -248,5 +246,25 @@ class Property
 		}
 
 		return true;
+	}
+
+	public function getAsJson(): string
+	{
+		$Start = '{';
+		$End = '}';
+
+		if( $this->getType() == 'array' )
+		{
+			$Start = '[';
+			$End = ']';
+		}
+
+		$Result = $Start;
+
+		$Result .= "'{$this->getName()}':'{$this->getValue()}'";
+
+		$Result = $Result.$End;
+
+		return $Result.'}';
 	}
 }
