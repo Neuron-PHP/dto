@@ -210,39 +210,34 @@ class Mapper
 		/** @var Property $Property */
 		foreach( $Properties as $Property )
 		{
+			$Key = $MasterKey.'.'.$Property->getName();
 
 			if( $Property->getType() == 'object' )
 			{
-				$Key = $MasterKey.'.'.$Property->getName();
 				$this->_Properties[ $Key ] = $Property;
 				$this->flattenProperties( $Property->getValue(), $MasterKey );
 			}
 			elseif( $Property->getType() == 'array' )
 			{
 				$Template = $Property->getValue()->getItemTemplate();
+
 				if( $Template->getType() == 'object')
 				{
-					$Key = $MasterKey.'.'.$Property->getName();
 					$this->_Properties[ $Key ] = $Property;
 					$Template->getValue()->setName( $Property->getName() );
 					$this->flattenProperties( $Template->getValue(), $MasterKey );
 				}
 				elseif( $Template->getType() == 'array')
 				{
-					$Key = $MasterKey.'.'.$Property->getName();
-					$this->_Properties[ $Key ] = $Property;
-					$Template->setName( $Property->getName() );
-					$this->flattenProperties( $Property->getValue(), $MasterKey );
+					Log::error( "$Key: Array of arrays is not supported.");
 				}
 				else
 				{
-					$Key = $MasterKey.'.'.$Property->getName();
 					$this->_Properties[ $Key ] = $Property;
 				}
 			}
 			else
 			{
-				$Key = $MasterKey.'.'.$Property->getName();
 				$this->_Properties[ $Key ] = $Property;
 			}
 		}
@@ -280,11 +275,19 @@ class Mapper
 	 * @param int $Element
 	 * @param string $Name
 	 * @return array
+	 * @throws MapNotFoundException
 	 */
 
 	protected function buildArrayPart( string $ArrayKey, int $Element, string $Name ): array
 	{
 		$ArrayAlias = $this->getAlias( $ArrayKey );
+
+		if( !$ArrayAlias )
+		{
+			$Message = "Missing map for '{$ArrayKey}'";
+			Log::warning( $Message );
+			throw new MapNotFoundException( $Message );
+		}
 
 		$Parts = explode( '.', $ArrayAlias );
 
@@ -395,8 +398,14 @@ class Mapper
 		{
 			if( $this->isArray( $Key ) )
 			{
-				$Array = $this->getArrayPath( $Key );
-				$this->mapArray( $Array, $Value );
+				try
+				{
+					$Array = $this->getArrayPath( $Key );
+					$this->mapArray( $Array, $Value );
+				}
+				catch( MapNotFoundException $Exception )
+				{
+				}
 			}
 			else
 			{

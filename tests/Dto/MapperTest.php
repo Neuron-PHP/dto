@@ -21,6 +21,14 @@ class MapperTest extends TestCase
 		$this->DtoFactory		= new DtoFactory( 'examples/test.yaml' );
 
 		$this->SuccessPayload = [
+			'unused' => [
+				[
+					'one' => 1,
+				],
+				[
+					'two' => 2,
+				]
+			],
 			'user' => [
 				'name' => 'test',
 				'password' => 'testtest',
@@ -49,6 +57,11 @@ class MapperTest extends TestCase
 					[
 						'name' => 'pants',
 						'count' => 3
+					]
+				],
+				'nested' => [
+					[
+						'level2' => '2'
 					]
 				]
 			]
@@ -153,6 +166,55 @@ class MapperTest extends TestCase
 		$Mapper->setStrictErrors( true );
 
 		$this->assertEquals( true, $Mapper->isStrictErrors() );
+	}
+
+
+	public function testArrayRequired()
+	{
+		$Payload = [
+			'unused' => [
+				[
+					'one' => 1,
+				],
+				[
+					'two' => 2,
+				]
+			],
+			'user' => [
+				'name' => 'test',
+				'password' => 'testtest',
+				'age'      => 40,
+				'birthday' => '1978-01-01',
+				'address'  => [
+					'street' => '13 Mocking',
+					'city'   => 'Mockingbird Heights',
+					'state'  => 'CA',
+					'zip'    => '90210'
+				],
+				'inventory' => [],
+				'nested' => [
+					[
+						'level2' => '2'
+					]
+				]
+			]
+		];
+
+		$Mapper = $this->MapperFactory->create();
+
+		$Dto = $this->DtoFactory->create();
+
+		$Errors = [];
+
+		try
+		{
+			$Mapper->map( $Dto, $Payload );
+		}
+		catch( ValidationException $Exception )
+		{
+		}
+
+		$this->assertNotEmpty( $Dto->getErrors() );
 	}
 
 	public function testMapSuccess()

@@ -154,7 +154,7 @@ class Dto extends CompoundBase
 		}
 		elseif( $Property->getType() == 'array' )
 		{
-			$this->validateArray( $Property->getValue() );
+			$this->validateArray( $Property );
 		}
 		else
 		{
@@ -174,16 +174,25 @@ class Dto extends CompoundBase
 	}
 
 	/**
-	 * @param Collection $Collection
+	 * @param Property $Property
 	 * @return void
 	 * @throws ValidationException
 	 * @throws Exception
 	 */
-	protected function validateArray( Collection $Collection ): void
+	protected function validateArray( Property $Property ): void
 	{
-		$this->addErrors( $Collection->getErrors() );
+		try
+		{
+			$Property->validate();
+		}
+		catch( ValidationException $Exception )
+		{
+			$this->addErrors( $Exception->getErrors() );
+		}
 
-		foreach( $Collection->getChildren() as $Item )
+		$this->addErrors( $Property->getValue()->getErrors() );
+
+		foreach( $Property->getValue()->getChildren() as $Item )
 		{
 			$this->validateScalar( $Item );
 		}

@@ -12,4 +12,6 @@ map:
   test.inventory.amount: user.inventory.count
   test.inventory.attributes: user.inventory.attributes
 
+  missing: user.missing
+
 
