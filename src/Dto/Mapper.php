@@ -210,15 +210,39 @@ class Mapper
 		/** @var Property $Property */
 		foreach( $Properties as $Property )
 		{
-			$Key = $MasterKey.'.'.$Property->getName();
 
 			if( $Property->getType() == 'object' )
 			{
+				$Key = $MasterKey.'.'.$Property->getName();
 				$this->_Properties[ $Key ] = $Property;
 				$this->flattenProperties( $Property->getValue(), $MasterKey );
 			}
+			elseif( $Property->getType() == 'array' )
+			{
+				$Template = $Property->getValue()->getItemTemplate();
+				if( $Template->getType() == 'object')
+				{
+					$Key = $MasterKey.'.'.$Property->getName();
+					$this->_Properties[ $Key ] = $Property;
+					$Template->getValue()->setName( $Property->getName() );
+					$this->flattenProperties( $Template->getValue(), $MasterKey );
+				}
+				elseif( $Template->getType() == 'array')
+				{
+					$Key = $MasterKey.'.'.$Property->getName();
+					$this->_Properties[ $Key ] = $Property;
+					$Template->setName( $Property->getName() );
+					$this->flattenProperties( $Property->getValue(), $MasterKey );
+				}
+				else
+				{
+					$Key = $MasterKey.'.'.$Property->getName();
+					$this->_Properties[ $Key ] = $Property;
+				}
+			}
 			else
 			{
+				$Key = $MasterKey.'.'.$Property->getName();
 				$this->_Properties[ $Key ] = $Property;
 			}
 		}
@@ -369,7 +393,6 @@ class Mapper
 
 		foreach( $this->getFields() as $Key => $Value )
 		{
-
 			if( $this->isArray( $Key ) )
 			{
 				$Array = $this->getArrayPath( $Key );
