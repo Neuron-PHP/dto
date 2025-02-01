@@ -290,6 +290,11 @@ class Property
 	{
 		/** @var Dto $Dto */
 		$Dto = $this->getValue();
-		return "\"{$this->getName()}\":{$Dto->getAsJson()}";
+		$Json = $Dto->getAsJson();
+
+		if( !$Json )
+			return "";
+
+		return "\"{$this->getName()}\":{$Json}";
 	}
 }
