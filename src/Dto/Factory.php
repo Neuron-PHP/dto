@@ -5,7 +5,7 @@ namespace Neuron\Dto;
 use Exception;
 use Symfony\Component\Yaml\Yaml;
 
-class DtoFactory
+class Factory
 {
 	private string $_FileName;
 

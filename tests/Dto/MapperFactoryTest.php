@@ -2,14 +2,14 @@
 
 namespace Dto;
 
-use Neuron\Dto\MapperFactory;
+use Neuron\Dto\Mapper\Factory;
 use PHPUnit\Framework\TestCase;
 
 class MapperFactoryTest extends TestCase
 {
 	public function testCreate()
 	{
-		$MapperFactory = new MapperFactory( 'examples/test-json-map.yaml' );
+		$MapperFactory = new Factory( 'examples/test-json-map.yaml' );
 
 		$Mapper = $MapperFactory->create();
 
@@ -23,7 +23,7 @@ class MapperFactoryTest extends TestCase
 
 	public function testGetFileName()
 	{
-		$MapperFactory = new MapperFactory( 'example' );
+		$MapperFactory = new Factory( 'example' );
 
 		$this->assertEquals( 'example', $MapperFactory->getFileName() );
 	}

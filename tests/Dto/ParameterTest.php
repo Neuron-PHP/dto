@@ -2,7 +2,7 @@
 
 
 use Neuron\Dto\Dto;
-use Neuron\Dto\DtoFactory;
+use Neuron\Dto\Factory;
 use PHPUnit\Framework\TestCase;
 
 class ParameterTest extends TestCase
@@ -11,7 +11,7 @@ class ParameterTest extends TestCase
 
 	public function setUp(): void
 	{
-		$Factory = new DtoFactory( 'examples/test.yaml' );
+		$Factory = new Factory( 'examples/test.yaml' );
 		$this->Dto = $Factory->create();
 	}
 

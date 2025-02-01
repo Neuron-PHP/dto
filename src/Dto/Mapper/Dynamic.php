@@ -1,13 +1,16 @@
 <?php
 
-namespace Neuron\Dto;
+namespace Neuron\Dto\Mapper;
 
-use Countable;
 use DeepCopy\DeepCopy;
-use DeepCopy\TypeFilter\Spl\ArrayObjectFilter;
+use Neuron\Dto\Dto;
+use Neuron\Dto\ICompound;
+use Neuron\Dto\MapNotFoundException;
+use Neuron\Dto\Property;
+use Neuron\Dto\ValidationException;
 use Neuron\Log\Log;
 
-class Mapper
+class Dynamic
 {
 	private Dto		$_Dto;
 	private string	$_Name;
@@ -37,7 +40,7 @@ class Mapper
 	 * @return $this
 	 */
 
-	public function setStrictErrors( bool $Strict ): Mapper
+	public function setStrictErrors( bool $Strict ): Dynamic
 	{
 		$this->_StrictErrors = $Strict;
 		return $this;
@@ -59,7 +62,7 @@ class Mapper
 	 * @return $this
 	 */
 
-	public function setStrictMapping( bool $StrictMapping ): Mapper
+	public function setStrictMapping( bool $StrictMapping ): Dynamic
 	{
 		$this->_StrictMapping = $StrictMapping;
 		return $this;
@@ -97,7 +100,7 @@ class Mapper
 	 * @return $this
 	 */
 
-	public function setName( string $Name ): Mapper
+	public function setName( string $Name ): Dynamic
 	{
 		$this->_Name = $Name;
 		return $this;
@@ -111,7 +114,7 @@ class Mapper
 	 * @return $this
 	 */
 
-	public function setAlias( string $PropertyName, string $AliasName ): Mapper
+	public function setAlias( string $PropertyName, string $AliasName ): Dynamic
 	{
 		$this->_Aliases[ $AliasName ] = $PropertyName;
 

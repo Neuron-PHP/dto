@@ -1,24 +1,23 @@
 <?php
 namespace Dto;
 
-use Neuron\Dto\Dto;
-use Neuron\Dto\DtoFactory;
-use Neuron\Dto\Mapper;
-use Neuron\Dto\MapperFactory;
+use Neuron\Dto\Factory;
 use Neuron\Dto\MapNotFoundException;
+use Neuron\Dto\Mapper\Dynamic;
+use Neuron\Dto\Mapper;
 use Neuron\Dto\ValidationException;
 use PHPUnit\Framework\TestCase;
 
 class MapperTest extends TestCase
 {
-	public array $SuccessPayload;
-	public MapperFactory $MapperFactory;
-	public DtoFactory $DtoFactory;
+	public array      $SuccessPayload;
+	public Mapper\Factory $MapperFactory;
+	public Factory $DtoFactory;
 
 	protected function setUp(): void
 	{
-		$this->MapperFactory	= new MapperFactory( 'examples/test-json-map.yaml' );
-		$this->DtoFactory		= new DtoFactory( 'examples/test.yaml' );
+		$this->MapperFactory	= new Mapper\Factory( 'examples/test-json-map.yaml' );
+		$this->DtoFactory		= new Factory( 'examples/test.yaml' );
 
 		$this->SuccessPayload = [
 			'unused' => [
@@ -74,7 +73,7 @@ class MapperTest extends TestCase
 
 	public function testFlattenFields()
 	{
-		$Mapper = new Mapper();
+		$Mapper = new Dynamic();
 
 		$Mapper->flattenFields( $this->SuccessPayload );
 
@@ -118,7 +117,7 @@ class MapperTest extends TestCase
 
 	public function testSetName()
 	{
-		$Mapper = new Mapper();
+		$Mapper = new Dynamic();
 
 		$Mapper->setName( 'test' );
 
@@ -127,7 +126,7 @@ class MapperTest extends TestCase
 
 	public function testSetAlias()
 	{
-		$Mapper = new Mapper();
+		$Mapper = new Dynamic();
 
 		$Mapper->setAlias( 'test', 'alias' );
 
@@ -315,7 +314,7 @@ class MapperTest extends TestCase
 
 	public function testMapFail()
 	{
-		$Mapper = new Mapper();
+		$Mapper = new Dynamic();
 
 		$Dto = $this->DtoFactory->create();
 

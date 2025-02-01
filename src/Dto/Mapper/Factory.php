@@ -1,10 +1,10 @@
 <?php
 
-namespace Neuron\Dto;
+namespace Neuron\Dto\Mapper;
 
 use Symfony\Component\Yaml\Yaml;
 
-class MapperFactory
+class Factory
 {
 	private string $_FileName;
 
@@ -27,10 +27,10 @@ class MapperFactory
 	}
 
 	/**
-	 * @return Mapper
+	 * @return Dynamic
 	 */
 
-	public function create() : Mapper
+	public function create() : Dynamic
 	{
 		$Name = pathinfo( $this->_FileName )[ 'filename' ];
 		$Data = Yaml::parseFile( $this->_FileName );
@@ -41,17 +41,17 @@ class MapperFactory
 	/**
 	 * @param string $Name
 	 * @param array $Data
-	 * @return Mapper
+	 * @return Dynamic
 	 */
 
-	protected function createMapper( string $Name, array $Data ) : Mapper
+	protected function createMapper( string $Name, array $Data ) : Dynamic
 	{
-		$Mapper = new Mapper();
+		$Mapper = new Dynamic();
 		$Mapper->setName( $Name );
 
 		foreach( $Data as $Key => $Value )
 		{
-			$Mapper->setAlias( $Key, $Value );
+			$Mapper->setAlias( $Value, $Key );
 		}
 
 		return $Mapper;

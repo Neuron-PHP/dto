@@ -149,7 +149,7 @@ map:
 Create a mapper, ingest and map external data.
 
 ```php
-$MapperFactory = new \Neuron\Dto\MapperFactory( 'examples/test-json-map.yaml' );
+$MapperFactory = new \Neuron\Dto\Mapper\Factory( 'examples/test-json-map.yaml' );
 $Mapper = $MapperFactory->create();
 
 $Payload = [
