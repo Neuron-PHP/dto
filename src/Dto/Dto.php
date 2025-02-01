@@ -220,8 +220,15 @@ class Dto extends CompoundBase
 
 		foreach( $this->getProperties() as $Property )
 		{
-			$Result .= $Property->getAsJson();
+			$Json = $Property->getAsJson();
+
+			if( $Json )
+			{
+				$Result .= $Json . ',';
+			}
 		}
+
+		$Result = substr($Result, 0, -1);
 
 		return $Result.'}';
 	}

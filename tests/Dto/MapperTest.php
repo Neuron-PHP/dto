@@ -346,4 +346,28 @@ class MapperTest extends TestCase
 			$Errors[ 0 ]
 		);
 	}
+
+	public function testGetAsJson()
+	{
+		$Mapper = $this->MapperFactory->create();
+
+		$Dto = $this->DtoFactory->create();
+
+		$Errors = [];
+
+		try
+		{
+			$Mapper->map( $Dto, $this->SuccessPayload );
+		}
+		catch( ValidationException $Exception )
+		{
+			$Errors = $Exception->getErrors();
+		}
+
+		$json = $Dto->getAsJson();
+
+		json_decode( $json );
+
+		$this->assertTrue( json_last_error() == JSON_ERROR_NONE );
+	}
 }

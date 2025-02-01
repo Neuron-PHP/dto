@@ -11,7 +11,7 @@ class Property
 	private string	$_Name;
 	private bool	$_Required;
 	private string	$_Type;
-	private mixed	$_Value = '';
+	private mixed	$_Value = null;
 	private array	$_TypeValidators;
 	private Validation\Collection $_Validators;
 
@@ -214,7 +214,6 @@ class Property
 			{
 				$Message = "{$this->getName()}: $Error validation failed.";
 				$this->_Errors[] = $Message;
-				Log::warning( $Message );
 			}
 		}
 
@@ -248,23 +247,49 @@ class Property
 		return true;
 	}
 
+	/**
+	 * @return string
+	 */
+
 	public function getAsJson(): string
 	{
-		$Start = '{';
-		$End = '}';
+		if( $this->getValue() === null )
+		{
+			return '';
+		}
 
 		if( $this->getType() == 'array' )
 		{
-			$Start = '[';
-			$End = ']';
+			return $this->getArrayAsJson();
 		}
 
-		$Result = $Start;
+		if( $this->getType() == 'object' )
+		{
+			return $this->getDtoAsJson();
+		}
 
-		$Result .= "'{$this->getName()}':'{$this->getValue()}'";
+		return "\"{$this->getName()}\":\"{$this->getValue()}\"";
+	}
 
-		$Result = $Result.$End;
+	/**
+	 * @return string
+	 */
 
-		return $Result.'}';
+	protected function getArrayAsJson(): string
+	{
+		/** @var Collection $Collection */
+		$Collection = $this->getValue();
+		return "\"{$this->getName()}\":{$Collection->getAsJson()}";
+	}
+
+	/**
+	 * @return string
+	 */
+
+	protected function getDtoAsJson(): string
+	{
+		/** @var Dto $Dto */
+		$Dto = $this->getValue();
+		return "\"{$this->getName()}\":{$Dto->getAsJson()}";
 	}
 }

@@ -117,6 +117,13 @@ You can also access validation errors for an individual parameter.
 print_r( $Dto->getParameter( 'username' )->getErrors() );
 ```
 
+#### JSON
+To output the contents of the DTO as JSON, use the getAsJson() method.
+
+```php
+echo $Dto->getAsJson();
+```
+
 ### Mappers
 
 Mappers allow the dynamic mapping of different data structures.

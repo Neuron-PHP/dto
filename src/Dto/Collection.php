@@ -74,10 +74,43 @@ class Collection extends CompoundBase
 		return $this->_Children[ $Offset ] ?? null;
 	}
 
+	/**
+	 * @param int $Min
+	 * @param int $Max
+	 * @return $this
+	 */
+
 	public function setRange( int $Min, int $Max ) : Collection
 	{
 		$this->_ValidRange = new NumericRange( $Min, $Max );
 
 		return $this;
+	}
+
+	public function getAsJson() : string
+	{
+		$Result = '[';
+
+		foreach( $this->getChildren() as $Property )
+		{
+			if( $this->getItemTemplate()->getType() == 'object' )
+			{
+				$Json = $Property->getAsJson();
+
+				if( $Json )
+				{
+					$Result .= $Json . ',';
+				}
+			}
+			else
+			{
+				$Result .= "\"{$Property->getValue()}\",";
+			}
+		}
+
+		if( strlen( $Result ) > 1 )
+			$Result = substr($Result, 0, -1);
+
+		return $Result.']';
 	}
 }
