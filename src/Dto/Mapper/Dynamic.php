@@ -10,9 +10,8 @@ use Neuron\Dto\Property;
 use Neuron\Dto\ValidationException;
 use Neuron\Log\Log;
 
-class Dynamic
+class Dynamic implements IMapper
 {
-	private Dto		$_Dto;
 	private string	$_Name;
 	private array	$_Aliases = [];
 	private array	$_Fields;
@@ -144,8 +143,6 @@ class Dynamic
 
 	public function map( Dto $Dto, array $Data ) : Dto
 	{
-		$this->_Dto = $Dto;
-
 		Log::debug( "Mapping {$Dto->getName()}..." );
 
 		$Dto->clearErrors();
@@ -188,8 +185,35 @@ class Dynamic
 			{
 				$this->_Fields[ $MasterKey ] = $Value;
 			}
+		}
+	}
 
-			$MasterKey = $CurrentKey;
+	/**
+	 * @param Property $Property
+	 * @param string $Key
+	 * @param string $MasterKey
+	 * @return void
+	 */
+
+	protected function flattenArray( Property $Property, string $Key, string $MasterKey ): void
+	{
+		$Template = $Property->getValue()
+									->getItemTemplate();
+
+		if( $Template->getType() == 'object' )
+		{
+			$this->_Properties[ $Key ] = $Property;
+			$Template->getValue()
+						->setName( $Property->getName() );
+			$this->flattenProperties( $Template->getValue(), $MasterKey );
+		}
+		elseif( $Template->getType() == 'array' )
+		{
+			Log::error( "$Key: Array of arrays is not supported." );
+		}
+		else
+		{
+			$this->_Properties[ $Key ] = $Property;
 		}
 	}
 
@@ -221,22 +245,7 @@ class Dynamic
 			}
 			elseif( $Property->getType() == 'array' )
 			{
-				$Template = $Property->getValue()->getItemTemplate();
-
-				if( $Template->getType() == 'object')
-				{
-					$this->_Properties[ $Key ] = $Property;
-					$Template->getValue()->setName( $Property->getName() );
-					$this->flattenProperties( $Template->getValue(), $MasterKey );
-				}
-				elseif( $Template->getType() == 'array')
-				{
-					Log::error( "$Key: Array of arrays is not supported.");
-				}
-				else
-				{
-					$this->_Properties[ $Key ] = $Property;
-				}
+				$this->flattenArray( $Property, $Key, $MasterKey );
 			}
 			else
 			{
@@ -248,7 +257,7 @@ class Dynamic
 	/**
 	 * Gets a dto parameter based on its assigned alias.
 	 *
-	 * @param $Key
+	 * @param string $Key
 	 * @return Property|null
 	 */
 
@@ -293,8 +302,6 @@ class Dynamic
 			Log::warning( $Message );
 			throw new MapNotFoundException( $Message );
 		}
-
-		$Parts = explode( '.', $ArrayAlias );
 
 		if( strlen( $Name ) )
 		{
@@ -423,7 +430,7 @@ class Dynamic
 	}
 
 	/**
-	 * Map a non-array variable.
+	 * Map a non-compound variable.
 	 *
 	 * @param int|string $Key
 	 * @param mixed $Value
@@ -435,48 +442,53 @@ class Dynamic
 	{
 		$Property = $this->getPropertyByAlias( $Key );
 
-		if( $Property )
+		if( $Property === null )
 		{
-			$Parent = $Property->getParent()?->getParent();
-
-			if( $Parent && get_class( $Parent ) == 'Neuron\Dto\Collection' )
-			{
-				/**
-				 * This handles a scalar that is mapped to an array.
-				 * It will create a new array item in the dto and assign the correct
-				 * property.
-				 */
-
-				/**
-				 * @todo iterate through any existing array items and find a matching named property
-				 * that has no value. If so, set that one. If not, create a new item.
-				 */
-
-				foreach( $Parent->getChildren() as $Child )
-				{
-					$Target = $Child->getProperty( $Property->getName() );
-					if( !$Target->getValue() )
-					{
-						$Target->setValue( $Value );
-						return;
-					}
-				}
-
-				$Template = $Parent->getItemTemplate();
-				$DeepCopy = new DeepCopy();
-				$Item = $DeepCopy->copy( $Template->getValue() );
-				$Parent->addChild( $Item );
-				$Target = $Item->getProperty( $Property->getName() );
-				$Target->setValue( $Value );
-			}
-			else
-			{
-				$Property->setValue( $Value );
-			}
+			if( $this->isStrictMapping() )
+				throw new MapNotFoundException( $Key );
+			return;
 		}
-		elseif( $this->isStrictMapping())
+
+		$Parent = $Property->getParent()
+								 ?->getParent();
+
+		if( $Parent === null )
 		{
-			throw new MapNotFoundException( $Key );
+			$Property->setValue( $Value );
+			return;
+		}
+
+		if( get_class( $Parent ) == 'Neuron\Dto\Collection' )
+		{
+			/**
+			 * This handles a scalar that is mapped to an array.
+			 * It will create a new array item in the Collection and assign the correct
+			 * property.
+			 */
+
+			/**
+			 * Iterate through any existing array items and find a matching named property
+			 * that has no value. If so, set that one. If not, create a new item and set
+			 * the value.
+			 */
+
+			foreach( $Parent->getChildren() as $Child )
+			{
+				$Target = $Child->getProperty( $Property->getName() );
+				if( !$Target->getValue() )
+				{
+					$Target->setValue( $Value );
+					return;
+				}
+			}
+
+			$Template	= $Parent->getItemTemplate();
+			$DeepCopy	= new DeepCopy();
+			$Item 		= $DeepCopy->copy( $Template->getValue() );
+
+			$Parent->addChild( $Item );
+			$Item->getProperty( $Property->getName() )
+				  ->setValue( $Value );
 		}
 	}
 
@@ -505,6 +517,13 @@ class Dynamic
 
 			if( $Array === null )
 			{
+				/**
+				 * Array will only be non-null when a value is being assigned to an
+				 * element in a multidimensional array. Each ArrayPart represents
+				 * a step into an array in the chain with the final part locating the actual
+				 * property to assign the value to.
+				 */
+
 				$Array = $this->getPropertyByKey( $ArrayPart[ 'ArrayKey' ] );
 			}
 
@@ -512,7 +531,12 @@ class Dynamic
 
 			if( $ArrayItem === null )
 			{
-				// If array element doesn't exist, crate it by cloning the item template.
+				/**
+				 * If array element doesn't exist, crate it by cloning the item template
+				 * then adding the clone as an item.
+				 * The itemTemplate contains the properties of the compound or scalar
+				 * that each item in the array will contain.
+				 */
 
 				$Template = $Array->getValue()->getItemTemplate();
 
@@ -520,7 +544,9 @@ class Dynamic
 
 				if( is_object( $Template->getValue() ) )
 				{
-					// if it's an object, close the composite stored in the template value.
+					/**
+					 * If it's an object, clone the composite stored in the template value.
+					 */
 
 					$ArrayItem = $DeepCopy->copy( $Template->getValue() );
 
@@ -531,8 +557,10 @@ class Dynamic
 				}
 				else
 				{
-					// if it's a scalar value, clone the template and store
-					// the property as a parameter.
+					/**
+					 * if it's a scalar value, clone the template and store
+					 * the property as a parameter.
+					 */
 
 					$ArrayItem = $DeepCopy->copy( $Template );
 
@@ -544,8 +572,10 @@ class Dynamic
 			{
 				if( get_class( $ArrayItem ) == Dto::class )
 				{
-					// If the object is a dto then set the next item as the property
-					// object specified by the name.
+					/**
+					 * If the array item exists and it is a dto
+					 * then set the next item to the dto property.
+					 */
 
 					$ArrayItem = $ArrayItem->getProperty( $ArrayPart[ 'Name' ] );
 				}

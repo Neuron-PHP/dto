@@ -6,13 +6,13 @@ use Symfony\Component\Yaml\Yaml;
 
 class Factory
 {
-	private string $_FileName;
+	private ?string $_FileName;
 
 	/**
-	 * @param string $FileName
+	 * @param ?string $FileName
 	 */
 
-	public function __construct( string $FileName )
+	public function __construct( ?string $FileName = null )
 	{
 		$this->_FileName = $FileName;
 	}
