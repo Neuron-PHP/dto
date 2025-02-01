@@ -216,6 +216,9 @@ class Dto extends CompoundBase
 
 	public function getAsJson(): string
 	{
+		if( !count( $this->getProperties() ) )
+			return "";
+
 		$Result = '{';
 
 		foreach( $this->getProperties() as $Property )
