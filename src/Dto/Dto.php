@@ -218,13 +218,8 @@ class Dto extends CompoundBase
 	{
 		$Result = '{';
 
-		$HasValue = false;
-
 		foreach( $this->getProperties() as $Property )
 		{
-			if( $Property->getValue() )
-				$HasValue = true;
-
 			$Json = $Property->getAsJson();
 
 			if( $Json )
@@ -232,9 +227,6 @@ class Dto extends CompoundBase
 				$Result .= $Json . ',';
 			}
 		}
-
-		if( !$HasValue )
-			return '';
 
 		$Result = substr($Result, 0, -1);
 

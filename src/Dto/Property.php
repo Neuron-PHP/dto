@@ -253,10 +253,12 @@ class Property
 
 	public function getAsJson(): string
 	{
+		/*
 		if( $this->getValue() === null )
 		{
 			return '';
 		}
+		*/
 
 		if( $this->getType() == 'array' )
 		{
