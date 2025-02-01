@@ -63,7 +63,9 @@ class MapperTest extends TestCase
 					[
 						'level2' => '2'
 					]
-				]
+				],
+				"test_username" => 'test_username',
+				"test_email" => 'test_email'
 			]
 		];
 

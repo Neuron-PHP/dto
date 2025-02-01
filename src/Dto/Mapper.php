@@ -253,6 +253,9 @@ class Mapper
 	{
 		$Alias = $this->getAlias( $Key );
 
+		if( !$Alias )
+			Log::warning( "Alias not found for key: $Key." );
+
 		return $this->_Properties[ $Alias ] ?? null;
 	}
 
@@ -338,6 +341,7 @@ class Mapper
 	 *
 	 * @param string $Key
 	 * @return array|null
+	 * @throws MapNotFoundException
 	 */
 
 	public function getArrayPath( string $Key ) : ?array
@@ -426,15 +430,49 @@ class Mapper
 
 	protected function mapScalar( int|string $Key, mixed $Value ): void
 	{
-		$Parameter = $this->getPropertyByAlias( $Key );
+		$Property = $this->getPropertyByAlias( $Key );
 
-		if( $Parameter )
+		if( $Property )
 		{
-			$Parameter->setValue( $Value );
+			$Parent = $Property->getParent()?->getParent();
+
+			if( $Parent && get_class( $Parent ) == 'Neuron\Dto\Collection' )
+			{
+				/**
+				 * This handles a scalar that is mapped to an array.
+				 * It will create a new array item in the dto and assign the correct
+				 * property.
+				 */
+
+				/**
+				 * @todo iterate through any existing array items and find a matching named property
+				 * that has no value. If so, set that one. If not, create a new item.
+				 */
+
+				foreach( $Parent->getChildren() as $Child )
+				{
+					$Target = $Child->getProperty( $Property->getName() );
+					if( !$Target->getValue() )
+					{
+						$Target->setValue( $Value );
+						return;
+					}
+				}
+
+				$Template = $Parent->getItemTemplate();
+				$DeepCopy = new DeepCopy();
+				$Item = $DeepCopy->copy( $Template->getValue() );
+				$Parent->addChild( $Item );
+				$Target = $Item->getProperty( $Property->getName() );
+				$Target->setValue( $Value );
+			}
+			else
+			{
+				$Property->setValue( $Value );
+			}
 		}
 		elseif( $this->isStrictMapping())
 		{
-			Log::error( 'Missing map for '.$Key );
 			throw new MapNotFoundException( $Key );
 		}
 	}

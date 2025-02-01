@@ -12,6 +12,9 @@ map:
   test.inventory.amount: user.inventory.count
   test.inventory.attributes: user.inventory.attributes
 
+  test.scalarIntoArray.name: user.test_username
+  test.scalarIntoArray.email: user.test_email
+
   missing: user.missing
 
 

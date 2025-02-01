@@ -90,6 +90,7 @@ class DtoFactory
 	{
 		$Property = new Property();
 		$Property->setName( $Name );
+		$Property->setParent( $Parent );
 
 		if( isset( $PropertyData[ 'required' ] ) )
 		{

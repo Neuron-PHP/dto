@@ -7,6 +7,7 @@ use Neuron\Validation;
 
 class Property
 {
+	private ICompound $_Parent;
 	private array	$_Errors;
 	private string	$_Name;
 	private bool	$_Required;
@@ -52,6 +53,16 @@ class Property
 		$this->_Validators = new Validation\Collection();
 	}
 
+	public function getParent(): ICompound
+	{
+		return $this->_Parent;
+	}
+
+	public function setParent( ICompound $Parent ): Property
+	{
+		$this->_Parent = $Parent;
+		return $this;
+	}
 
 	/**
 	 * @return string
@@ -293,9 +304,6 @@ class Property
 		/** @var Dto $Dto */
 		$Dto = $this->getValue();
 		$Json = $Dto->getAsJson();
-
-		if( !$Json )
-			return "";
 
 		return "\"{$this->getName()}\":{$Json}";
 	}
