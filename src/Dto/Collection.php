@@ -3,9 +3,10 @@
 namespace Neuron\Dto;
 
 use Neuron\Data\Object\NumericRange;
-use Neuron\Log\Log;
+use Neuron\Dto\Compound\Base;
+use Neuron\Dto\Compound\ICompound;
 
-class Collection extends CompoundBase
+class Collection extends Base
 {
 	private ?NumericRange $_ValidRange = null;
 	private array		$_Children = [];
@@ -37,7 +38,7 @@ class Collection extends CompoundBase
 	 * @return Collection
 	 */
 
-	public function addChild( ICompound|Property $Child ) : CompoundBase
+	public function addChild( ICompound|Property $Child ) : Base
 	{
 		if( $this->_ValidRange !== null )
 		{
@@ -87,6 +88,10 @@ class Collection extends CompoundBase
 		return $this;
 	}
 
+	/**
+	 * @return string
+	 * @throws \Exception
+	 */
 	public function getAsJson() : string
 	{
 		$Result = '[';

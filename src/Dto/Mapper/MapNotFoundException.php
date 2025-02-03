@@ -1,6 +1,10 @@
 <?php
 
-namespace Neuron\Dto;
+namespace Neuron\Dto\Mapper;
+
+/**
+ *
+ */
 
 class MapNotFoundException extends \Exception
 {

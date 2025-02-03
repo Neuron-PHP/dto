@@ -3,8 +3,6 @@
 namespace Neuron\Dto\Mapper;
 
 use Neuron\Dto\Dto;
-use Neuron\Dto\MapNotFoundException;
-use Neuron\Dto\ValidationException;
 
 class Generic implements IMapper
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace Neuron\Dto;
+namespace Neuron\Dto\Compound;
 
-use Neuron\Dto\ICompound;
+use Neuron\Dto\Dto;
 
-class CompoundBase implements ICompound
+class Base implements ICompound
 {
 	private string $_Name;
 	private array $_Errors = [];

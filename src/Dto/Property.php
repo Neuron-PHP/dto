@@ -2,7 +2,7 @@
 namespace Neuron\Dto;
 
 use Neuron\Data\Object\NumericRange;
-use Neuron\Log\Log;
+use Neuron\Dto\Compound\ICompound;
 use Neuron\Validation;
 
 class Property

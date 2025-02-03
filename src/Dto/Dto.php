@@ -3,13 +3,14 @@
 namespace Neuron\Dto;
 
 use Exception;
+use Neuron\Dto\Compound\Base;
 use Neuron\Log\Log;
 
 /**
  * DTO Class handles compound objects with named properties.
  */
 
-class Dto extends CompoundBase
+class Dto extends Base
 {
 	private array $_Properties = [];
 
@@ -146,6 +147,7 @@ class Dto extends CompoundBase
 	 * @return void
 	 * @throws ValidationException
 	 */
+
 	protected function validateProperty( mixed $Property ): void
 	{
 		if( $Property->getType() == 'object' )
@@ -167,6 +169,7 @@ class Dto extends CompoundBase
 	 * @return void
 	 * @throws ValidationException
 	 */
+
 	protected function validateDto( Dto $Dto ): void
 	{
 		$Dto->validate();
@@ -179,6 +182,7 @@ class Dto extends CompoundBase
 	 * @throws ValidationException
 	 * @throws Exception
 	 */
+
 	protected function validateArray( Property $Property ): void
 	{
 		try
@@ -202,6 +206,7 @@ class Dto extends CompoundBase
 	 * @param mixed $Property
 	 * @return void
 	 */
+
 	protected function validateScalar( mixed $Property ): void
 	{
 		try
@@ -213,6 +218,10 @@ class Dto extends CompoundBase
 			$this->addErrors( $Exception->getErrors() );
 		}
 	}
+
+	/**
+	 * @return string
+	 */
 
 	public function getAsJson(): string
 	{

@@ -3,6 +3,7 @@
 namespace Neuron\Dto;
 
 use Exception;
+use Neuron\Dto\Compound\ICompound;
 use Symfony\Component\Yaml\Yaml;
 
 class Factory

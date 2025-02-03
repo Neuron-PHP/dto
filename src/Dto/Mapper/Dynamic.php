@@ -3,9 +3,8 @@
 namespace Neuron\Dto\Mapper;
 
 use DeepCopy\DeepCopy;
+use Neuron\Dto\Compound\ICompound;
 use Neuron\Dto\Dto;
-use Neuron\Dto\ICompound;
-use Neuron\Dto\MapNotFoundException;
 use Neuron\Dto\Property;
 use Neuron\Dto\ValidationException;
 use Neuron\Log\Log;

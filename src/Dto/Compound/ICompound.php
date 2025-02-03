@@ -1,6 +1,8 @@
 <?php
 
-namespace Neuron\Dto;
+namespace Neuron\Dto\Compound;
+
+use Neuron\Dto\Dto;
 
 interface ICompound
 {

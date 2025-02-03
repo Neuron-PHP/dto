@@ -2,9 +2,9 @@
 namespace Dto;
 
 use Neuron\Dto\Factory;
-use Neuron\Dto\MapNotFoundException;
-use Neuron\Dto\Mapper\Dynamic;
 use Neuron\Dto\Mapper;
+use Neuron\Dto\Mapper\Dynamic;
+use Neuron\Dto\Mapper\MapNotFoundException;
 use Neuron\Dto\ValidationException;
 use PHPUnit\Framework\TestCase;
 
