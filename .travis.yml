@@ -1,4 +1,4 @@
-dist: noble
+dist: oracular
 sudo: required
 language: php
 php: 8.4
