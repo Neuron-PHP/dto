@@ -1,5 +1,6 @@
 dist: noble
 sudo: required
+language: php
 
 before_install:
   - sudo apt update
