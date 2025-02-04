@@ -1,7 +1,7 @@
 dist: noble
 
 before_install:
-  - sudo apt install php8.4
+  - sudo apt-get install php8.4
 
 before_script: composer install
 
