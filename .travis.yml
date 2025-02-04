@@ -1,11 +1,6 @@
 dist: noble
 sudo: required
-language: php
-
-before_install:
-  - sudo apt update
-  - sudo apt install apt
-  - sudo apt-get install php8.4
+php: 8.4
 
 before_script: composer install
 
