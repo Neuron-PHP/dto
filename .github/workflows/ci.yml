@@ -5,6 +5,8 @@ on: [push]
 jobs:
   build-test:
     runs-on: ubuntu-latest
+    container:
+      image: php:8.4  # This forces the job to run in a Docker container
 
     steps:
     - name: Checkout
