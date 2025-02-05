@@ -12,18 +12,10 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.4' # Adjust as needed
-
-    - name: Install PHP Sockets Extension
+    - name: Install and Enable ext-sockets
       run: |
-        sudo apt-get update
-        sudo apt-get install -y php8.4-sockets
-
-    - name: Check Installed PHP Extensions
-      run: php -m | grep sockets  # Debugging step to verify installation
+        docker-php-ext-install sockets
+        docker-php-ext-enable sockets
 
     - uses: php-actions/composer@v6 # or alternative dependency management
     - uses: php-actions/phpunit@v3
