@@ -17,9 +17,13 @@ jobs:
         docker-php-ext-install sockets
         docker-php-ext-enable sockets
 
-    - uses: php-actions/composer@v6 # or alternative dependency management
-    - uses: php-actions/phpunit@v3
-      with:
-        version: 9.6
-        bootstrap: vendor/autoload.php
-        args: tests
+    - name: Install Composer
+      run: |
+        curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+        composer --version
+
+    - name: Install Dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run PHPUnit
+      run: vendor/bin/phpunit tests
