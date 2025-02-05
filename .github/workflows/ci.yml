@@ -12,10 +12,12 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-    - name: Install and Enable ext-sockets
+    - name: Install and Enable extensions
       run: |
         docker-php-ext-install sockets
         docker-php-ext-enable sockets
+        docker-php-ext-install calendar
+        docker-php-ext-enable calendar
 
     - name: Install Composer
       run: |
