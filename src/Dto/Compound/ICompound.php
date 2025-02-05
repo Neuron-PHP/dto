@@ -41,13 +41,9 @@ interface ICompound
 
 	public function addErrors( array $Errors ): ICompound;
 
-	/**
-	 * Returns a list of validation errors for all parameter values.
-	 *
-	 * @return array
-	 */
-
-	public function getErrors(): array;
+	public array $_Errors {
+		get;
+	}
 
 	/**
 	 * Resets the error list.

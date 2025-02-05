@@ -215,7 +215,7 @@ class MapperTest extends TestCase
 		{
 		}
 
-		$this->assertNotEmpty( $Dto->getErrors() );
+		$this->assertNotEmpty( $Dto->_Errors );
 	}
 
 	public function testMapSuccess()
@@ -338,9 +338,9 @@ class MapperTest extends TestCase
 		{
 		}
 
-		$this->assertNotEmpty( $Dto->getErrors() );
+		$this->assertNotEmpty( $Dto->_Errors );
 
-		$Errors = $Dto->getErrors();
+		$Errors = $Dto->_Errors;
 
 		$this->assertEquals(
 			"test.username: value is required.",

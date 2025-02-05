@@ -6,8 +6,13 @@ use Neuron\Dto\Dto;
 
 class Base implements ICompound
 {
-	private string $_Name;
-	private array $_Errors = [];
+	private string     $_Name;
+	public array       $_Errors = [] {
+		get{
+			return $this->_Errors;
+		}
+	}
+
 	private ?ICompound $_Parent = null;
 
 	/**
@@ -65,17 +70,6 @@ class Base implements ICompound
 		}
 
 		return $this;
-	}
-
-	/**
-	 * Returns a list of validation errors for all parameter values.
-	 *
-	 * @return array
-	 */
-
-	public function getErrors(): array
-	{
-		return $this->_Errors;
 	}
 
 	/**

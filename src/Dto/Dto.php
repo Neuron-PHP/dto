@@ -136,7 +136,7 @@ class Dto extends Base
 			$this->validateProperty( $Property );
 		}
 
-		foreach( $this->getErrors() as $Error )
+		foreach( $this->_Errors as $Error )
 		{
 			Log::error( $Error );
 		}
@@ -173,7 +173,7 @@ class Dto extends Base
 	protected function validateDto( Dto $Dto ): void
 	{
 		$Dto->validate();
-		$this->addErrors( $Dto->getErrors() );
+		$this->addErrors( $Dto->_Errors );
 	}
 
 	/**
