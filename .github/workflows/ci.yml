@@ -14,7 +14,12 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.4' # Adjust as needed
-        extensions: sockets # Ensure ext-sockets is installed
+
+    - name: Install Required PHP Extensions
+      run: sudo apt-get install -y php8.4-sockets  # Adjust PHP version if needed
+
+    - name: Check Installed PHP Extensions
+      run: php -m | grep sockets  # Debugging step to verify installation
 
     - uses: php-actions/composer@v6 # or alternative dependency management
     - uses: php-actions/phpunit@v3

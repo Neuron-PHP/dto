@@ -24,5 +24,6 @@
     "psr-4": {
       "Neuron\\": "src/"
     }
-  }
+  },
+  "test": "vendor/bin/phpunit"
 }
