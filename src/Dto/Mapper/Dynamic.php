@@ -3,10 +3,10 @@
 namespace Neuron\Dto\Mapper;
 
 use DeepCopy\DeepCopy;
+use Neuron\Core\Exceptions;
 use Neuron\Dto\Compound\ICompound;
 use Neuron\Dto\Dto;
 use Neuron\Dto\Property;
-use Neuron\Dto\ValidationException;
 use Neuron\Log\Log;
 
 class Dynamic implements IMapper
@@ -137,7 +137,7 @@ class Dynamic implements IMapper
 	 * @param Dto $Dto
 	 * @param array $Data
 	 * @return Dto
-	 * @throws ValidationException|MapNotFoundException
+	 * @throws Validation|MapNotFound
 	 */
 
 	public function map( Dto $Dto, array $Data ) : Dto
@@ -288,7 +288,7 @@ class Dynamic implements IMapper
 	 * @param int $Element
 	 * @param string $Name
 	 * @return array
-	 * @throws MapNotFoundException
+	 * @throws MapNotFound
 	 */
 
 	protected function buildArrayPart( string $ArrayKey, int $Element, string $Name ): array
@@ -299,7 +299,7 @@ class Dynamic implements IMapper
 		{
 			$Message = "Missing map for '{$ArrayKey}'";
 			Log::warning( $Message );
-			throw new MapNotFoundException( $Message );
+			throw new Exceptions\MapNotFound( $Message );
 		}
 
 		if( strlen( $Name ) )
@@ -350,7 +350,7 @@ class Dynamic implements IMapper
 	 *
 	 * @param string $Key
 	 * @return array|null
-	 * @throws MapNotFoundException
+	 * @throws MapNotFound
 	 */
 
 	public function getArrayPath( string $Key ) : ?array
@@ -391,7 +391,7 @@ class Dynamic implements IMapper
 	 * @param Dto $Dto
 	 * @param array $Data
 	 * @return void
-	 * @throws ValidationException|MapNotFoundException
+	 * @throws Exceptions\Validation | Exceptions\MapNotFound
 	 */
 
 	private function mapDto( Dto $Dto, array $Data ): void
@@ -415,7 +415,7 @@ class Dynamic implements IMapper
 					$Array = $this->getArrayPath( $Key );
 					$this->mapArray( $Array, $Value );
 				}
-				catch( MapNotFoundException $Exception )
+				catch( Exceptions\MapNotFound $Exception )
 				{
 				}
 			}
@@ -434,7 +434,7 @@ class Dynamic implements IMapper
 	 * @param int|string $Key
 	 * @param mixed $Value
 	 * @return void
-	 * @throws ValidationException|MapNotFoundException
+	 * @throws Exceptions\Validation | Exceptions\MapNotFound
 	 */
 
 	protected function mapScalar( int|string $Key, mixed $Value ): void
@@ -444,7 +444,8 @@ class Dynamic implements IMapper
 		if( $Property === null )
 		{
 			if( $this->isStrictMapping() )
-				throw new MapNotFoundException( $Key );
+				throw new Exceptions\MapNotFound( $Key );
+
 			return;
 		}
 
@@ -502,8 +503,7 @@ class Dynamic implements IMapper
 	 * @param array $ArrayData
 	 * @param mixed $Value
 	 * @return void
-	 * @throws ValidationException
-	 * @throws \Exception
+	 * @throws Exceptions\Validation
 	 */
 
 	protected function mapArray( array $ArrayData, mixed $Value ): void

@@ -2,8 +2,9 @@
 
 namespace Neuron\Dto\Mapper;
 
+use Neuron\Core\Exceptions\MapNotFound;
 use Neuron\Dto\Dto;
-use Neuron\Dto\ValidationException;
+use Neuron\Dto\Validation;
 
 interface IMapper
 {
@@ -13,7 +14,7 @@ interface IMapper
 	 * @param Dto $Dto
 	 * @param array $Data
 	 * @return Dto
-	 * @throws ValidationException|MapNotFoundException
+	 * @throws Validation|MapNotFound
 	 */
 	public function map( Dto $Dto, array $Data ): Dto;
 }

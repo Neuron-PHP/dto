@@ -2,7 +2,7 @@
 
 namespace Neuron\Dto;
 
-use Exception;
+use Neuron\Core\Exceptions;
 use Neuron\Dto\Compound\Base;
 use Neuron\Log\Log;
 
@@ -39,7 +39,7 @@ class Dto extends Base
 	 *
 	 * @param string $Name
 	 * @return mixed
-	 * @throws PropertyNotFoundException
+	 * @throws PropertyNotFound
 	 */
 
 	public function __get( string $Name ) : mixed
@@ -48,7 +48,7 @@ class Dto extends Base
 
 		if( !$Parameter )
 		{
-			throw new PropertyNotFoundException( $Name );
+			throw new Exceptions\PropertyNotFound( $Name );
 		}
 
 		if( $Parameter->getType() === 'array' )
@@ -76,8 +76,8 @@ class Dto extends Base
 	 * @param string $Name
 	 * @param mixed $Value
 	 * @return void
-	 * @throws PropertyNotFoundException
-	 * @throws ValidationException
+	 * @throws PropertyNotFound
+	 * @throws Validation
 	 */
 
 	public function __set( string $Name, mixed $Value ) : void
@@ -86,7 +86,7 @@ class Dto extends Base
 
 		if( !$Parameter )
 		{
-			throw new PropertyNotFoundException( $Name );
+			throw new Exceptions\PropertyNotFound( $Name );
 		}
 
 		$Parameter->setValue( $Value );
@@ -124,7 +124,7 @@ class Dto extends Base
 	 * Validates the values for all parameters.
 	 *
 	 * @return void
-	 * @throws ValidationException
+	 * @throws Validation
 	 */
 
 	public function validate() : void
@@ -145,7 +145,7 @@ class Dto extends Base
 	/**
 	 * @param mixed $Property
 	 * @return void
-	 * @throws ValidationException
+	 * @throws Validation
 	 */
 
 	protected function validateProperty( mixed $Property ): void
@@ -167,7 +167,7 @@ class Dto extends Base
 	/**
 	 * @param Dto $Dto
 	 * @return void
-	 * @throws ValidationException
+	 * @throws Validation
 	 */
 
 	protected function validateDto( Dto $Dto ): void
@@ -179,7 +179,7 @@ class Dto extends Base
 	/**
 	 * @param Property $Property
 	 * @return void
-	 * @throws ValidationException
+	 * @throws Validation
 	 * @throws Exception
 	 */
 
@@ -189,9 +189,9 @@ class Dto extends Base
 		{
 			$Property->validate();
 		}
-		catch( ValidationException $Exception )
+		catch( Exceptions\Validation $Exception )
 		{
-			$this->addErrors( $Exception->getErrors() );
+			$this->addErrors( $Exception->errors );
 		}
 
 		$this->addErrors( $Property->getValue()->getErrors() );
@@ -213,9 +213,9 @@ class Dto extends Base
 		{
 			$Property->validate();
 		}
-		catch( ValidationException $Exception )
+		catch( Exceptions\Validation $Exception )
 		{
-			$this->addErrors( $Exception->getErrors() );
+			$this->addErrors( $Exception->errors );
 		}
 	}
 

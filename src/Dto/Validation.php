@@ -2,13 +2,13 @@
 
 namespace Neuron\Dto;
 
-use Exception;
+use Neuron\Core\Exceptions\Base;
 
 /**
  *
  */
 
-class ValidationException extends Exception
+class Validation extends Base
 {
 	private array $_Errors;
 

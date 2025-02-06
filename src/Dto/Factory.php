@@ -66,7 +66,7 @@ class Factory
 	 * @param string $Name
 	 * @param array $Data
 	 * @return Collection
-	 * @throws ValidationException
+	 * @throws Validation
 	 */
 
 	protected function createArray( string $Name, array $Data ): Collection
@@ -84,7 +84,7 @@ class Factory
 	 * @param array $PropertyData
 	 * @param Dto $Parent
 	 * @return Property
-	 * @throws ValidationException
+	 * @throws Validation
 	 */
 
 	protected function createProperty( int|string $Name, array $PropertyData, ICompound $Parent ): Property

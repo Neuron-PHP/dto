@@ -1,11 +1,10 @@
 <?php
 namespace Dto;
 
+use Neuron\Core\Exceptions;
 use Neuron\Dto\Factory;
 use Neuron\Dto\Mapper;
 use Neuron\Dto\Mapper\Dynamic;
-use Neuron\Dto\Mapper\MapNotFoundException;
-use Neuron\Dto\ValidationException;
 use PHPUnit\Framework\TestCase;
 
 class MapperTest extends TestCase
@@ -148,7 +147,7 @@ class MapperTest extends TestCase
 		{
 			$Mapper->map( $Dto, $this->SuccessPayload );
 		}
-		catch( MapNotFoundException $Exception )
+		catch( Exceptions\MapNotFound $Exception )
 		{
 			$Pass = true;
 		}
@@ -205,14 +204,13 @@ class MapperTest extends TestCase
 
 		$Dto = $this->DtoFactory->create();
 
-		$Errors = [];
-
 		try
 		{
 			$Mapper->map( $Dto, $Payload );
 		}
-		catch( ValidationException $Exception )
+		catch( Exceptions\Validation $Exception )
 		{
+			$Pass = true;
 		}
 
 		$this->assertNotEmpty( $Dto->getErrors() );
@@ -230,7 +228,7 @@ class MapperTest extends TestCase
 		{
 			$Mapper->map( $Dto, $this->SuccessPayload );
 		}
-		catch( ValidationException $Exception )
+		catch( Validation $Exception )
 		{
 			$Errors = $Exception->getErrors();
 		}
@@ -334,7 +332,7 @@ class MapperTest extends TestCase
 		{
 			$Mapper->map( $Dto, $Payload );
 		}
-		catch( ValidationException $Exception )
+		catch( Exceptions\Validation $Exception )
 		{
 		}
 
@@ -360,7 +358,7 @@ class MapperTest extends TestCase
 		{
 			$Mapper->map( $Dto, $this->SuccessPayload );
 		}
-		catch( ValidationException $Exception )
+		catch( Validation $Exception )
 		{
 			$Errors = $Exception->getErrors();
 		}

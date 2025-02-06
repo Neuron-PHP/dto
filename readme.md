@@ -131,19 +131,18 @@ Mappers allow the dynamic mapping of different data structures.
 test-json-map.yaml
 ```yaml
 map:
-  test.username: user.name
-  test.password: user.password
-  test.age: user.age
-  
-  test.address.street: user.address.street
-  test.address.city: user.address.city
-  test.address.state: user.address.state
-  test.address.zip: user.address.zip
+  user.name: test.username
+  user.password: test.password
+  user.age: test.age
+  user.address.street: test.address.street
+  user.address.city: test.address.city
+  user.address.state: test.address.state
+  user.address.zi: test.address.zip
 
-  test.inventory: user.inventory
-  test.inventory.name: user.inventory.name
-  test.inventory.amount: user.inventory.count
-  test.inventory.attributes: user.inventory.attributes
+  user.inventory: test.inventory
+  user.inventory.name: test.inventory.name
+  user.inventory.count: test.inventory.amount
+  user.inventory.attributes: test.inventory.attributes
 ```
 
 Create a mapper, ingest and map external data.

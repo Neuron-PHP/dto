@@ -1,9 +1,10 @@
 <?php
 namespace Neuron\Dto;
 
+use Neuron\Validation;
+use Neuron\Core\Exceptions;
 use Neuron\Data\Object\NumericRange;
 use Neuron\Dto\Compound\ICompound;
-use Neuron\Validation;
 
 class Property
 {
@@ -207,7 +208,7 @@ class Property
 	}
 
 	/**
-	 * @throws ValidationException
+	 * @throws Exceptions\Validation
 	 */
 
 	public function validate(): void
@@ -230,7 +231,7 @@ class Property
 
 		if( count( $this->_Errors ) )
 		{
-			throw new ValidationException( $this->_Name, $this->_Errors );
+			throw new Exceptions\Validation( $this->_Name, $this->_Errors );
 		}
 	}
 
@@ -264,13 +265,6 @@ class Property
 
 	public function getAsJson(): string
 	{
-		/*
-		if( $this->getValue() === null )
-		{
-			return '';
-		}
-		*/
-
 		if( $this->getType() == 'array' )
 		{
 			return $this->getArrayAsJson();
@@ -286,6 +280,7 @@ class Property
 
 	/**
 	 * @return string
+	 * @throws \Exception
 	 */
 
 	protected function getArrayAsJson(): string
