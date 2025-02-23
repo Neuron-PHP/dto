@@ -208,7 +208,7 @@ class Dynamic implements IMapper
 		}
 		elseif( $Template->getType() == 'array' )
 		{
-			Log::error( "$Key: Array of arrays is not supported." );
+			Log::error( "$Key: Array of arrays are not supported." );
 		}
 		else
 		{
