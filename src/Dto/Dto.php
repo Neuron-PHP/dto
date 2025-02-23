@@ -241,4 +241,13 @@ class Dto extends Base
 
 		return $Result.'}';
 	}
+
+	/**
+	 * @return string
+	 */
+
+	public function __toString(): string
+	{
+		return $this->getAsJson();
+	}
 }
