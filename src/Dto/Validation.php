@@ -10,12 +10,12 @@ use Neuron\Core\Exceptions\Base;
 
 class Validation extends Base
 {
-	private array $_Errors;
+	private array $errors;
 
-	public function __construct( string $Name, array $Errors )
+	public function __construct( string $name, array $errors )
 	{
-		parent::__construct( "Validation failed for $Name" );
-		$this->_Errors = $Errors;
+		parent::__construct( "Validation failed for $name" );
+		$this->errors = $errors;
 	}
 
 	/**
@@ -24,6 +24,6 @@ class Validation extends Base
 
 	public function getErrors(): array
 	{
-		return $this->_Errors;
+		return $this->errors;
 	}
 }

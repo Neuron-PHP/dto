@@ -299,7 +299,7 @@ class Dynamic implements IMapper
 		{
 			$Message = "Missing map for '{$ArrayKey}'";
 			Log::warning( $Message );
-			throw new Exceptions\MapNotFound( $Message );
+			throw new Exceptions\NotFound( $Message );
 		}
 
 		if( strlen( $Name ) )
@@ -391,7 +391,7 @@ class Dynamic implements IMapper
 	 * @param Dto $Dto
 	 * @param array $Data
 	 * @return void
-	 * @throws Exceptions\Validation | Exceptions\MapNotFound
+	 * @throws Exceptions\Validation | Exceptions\MapNotFound|\Neuron\Dto\Validation
 	 */
 
 	private function mapDto( Dto $Dto, array $Data ): void
@@ -415,7 +415,7 @@ class Dynamic implements IMapper
 					$Array = $this->getArrayPath( $Key );
 					$this->mapArray( $Array, $Value );
 				}
-				catch( Exceptions\MapNotFound $Exception )
+				catch( Exceptions\NotFound $Exception )
 				{
 				}
 			}
@@ -444,7 +444,7 @@ class Dynamic implements IMapper
 		if( $Property === null )
 		{
 			if( $this->isStrictMapping() )
-				throw new Exceptions\MapNotFound( $Key );
+				throw new Exceptions\NotFound( $Key );
 
 			return;
 		}

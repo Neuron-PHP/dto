@@ -147,7 +147,7 @@ class MapperTest extends TestCase
 		{
 			$Mapper->map( $Dto, $this->SuccessPayload );
 		}
-		catch( Exceptions\MapNotFound $Exception )
+		catch( Exceptions\NotFound $Exception )
 		{
 			$Pass = true;
 		}
@@ -363,10 +363,8 @@ class MapperTest extends TestCase
 			$Errors = $Exception->getErrors();
 		}
 
-		$json = $Dto->getAsJson();
+		$json = (string)$Dto;
 
-		json_decode( $json );
-
-		$this->assertTrue( json_last_error() == JSON_ERROR_NONE );
+		$this->assertTrue( json_validate( $json ) );
 	}
 }
