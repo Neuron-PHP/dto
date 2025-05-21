@@ -16,5 +16,6 @@ interface IMapper
 	 * @return Dto
 	 * @throws Validation|MapNotFound
 	 */
+
 	public function map( Dto $Dto, array $Data ): Dto;
 }

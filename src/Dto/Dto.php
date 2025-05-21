@@ -3,6 +3,8 @@
 namespace Neuron\Dto;
 
 use Neuron\Core\Exceptions;
+use Neuron\Core\Exceptions\PropertyNotFound;
+use Neuron\Core\Exceptions\Validation;
 use Neuron\Dto\Compound\Base;
 use Neuron\Log\Log;
 
@@ -76,8 +78,8 @@ class Dto extends Base
 	 * @param string $Name
 	 * @param mixed $Value
 	 * @return void
-	 * @throws PropertyNotFound
 	 * @throws Validation
+	 * @throws PropertyNotFound
 	 */
 
 	public function __set( string $Name, mixed $Value ) : void
@@ -180,7 +182,6 @@ class Dto extends Base
 	 * @param Property $Property
 	 * @return void
 	 * @throws Validation
-	 * @throws Exception
 	 */
 
 	protected function validateArray( Property $Property ): void

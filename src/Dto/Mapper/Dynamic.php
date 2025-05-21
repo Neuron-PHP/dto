@@ -4,6 +4,9 @@ namespace Neuron\Dto\Mapper;
 
 use DeepCopy\DeepCopy;
 use Neuron\Core\Exceptions;
+use Neuron\Core\Exceptions\MapNotFound;
+use Neuron\Core\Exceptions\NotFound;
+use Neuron\Core\Exceptions\Validation;
 use Neuron\Dto\Compound\ICompound;
 use Neuron\Dto\Dto;
 use Neuron\Dto\Property;
@@ -137,7 +140,9 @@ class Dynamic implements IMapper
 	 * @param Dto $Dto
 	 * @param array $Data
 	 * @return Dto
-	 * @throws Validation|MapNotFound
+	 * @throws MapNotFound
+	 * @throws Validation
+	 * @throws \Neuron\Dto\Validation
 	 */
 
 	public function map( Dto $Dto, array $Data ) : Dto
@@ -276,6 +281,7 @@ class Dynamic implements IMapper
 	 * @param string $Key
 	 * @return Property|null
 	 */
+
 	protected function getPropertyByKey( string $Key ) : ?Property
 	{
 		return $this->_Properties[ $Key ] ?? null;
@@ -434,7 +440,7 @@ class Dynamic implements IMapper
 	 * @param int|string $Key
 	 * @param mixed $Value
 	 * @return void
-	 * @throws Exceptions\Validation | Exceptions\MapNotFound
+	 * @throws NotFound
 	 */
 
 	protected function mapScalar( int|string $Key, mixed $Value ): void
@@ -591,6 +597,7 @@ class Dynamic implements IMapper
 	 * @param array $Data
 	 * @return void
 	 */
+
 	public function createDataMap( Dto $Dto, array $Data ): void
 	{
 		$this->flattenProperties( $Dto );

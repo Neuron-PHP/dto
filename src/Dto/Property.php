@@ -1,6 +1,7 @@
 <?php
 namespace Neuron\Dto;
 
+use Exception;
 use Neuron\Validation;
 use Neuron\Core\Exceptions;
 use Neuron\Data\Object\NumericRange;
@@ -117,7 +118,7 @@ class Property
 	/**
 	 * @param string $Type
 	 * @return Property
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 
 	public function setType( string $Type ): Property
@@ -126,7 +127,7 @@ class Property
 
 		if( !array_key_exists( $this->getType(), $this->_TypeValidators ) )
 		{
-			throw new \Exception($this->getName().": Invalid type '{$Type}." );
+			throw new Exception($this->getName().": Invalid type '{$Type}." );
 		}
 
 		$this->_Validators->remove( 'type' );
@@ -261,6 +262,7 @@ class Property
 
 	/**
 	 * @return string
+	 * @throws Exception
 	 */
 
 	public function getAsJson(): string
@@ -280,7 +282,7 @@ class Property
 
 	/**
 	 * @return string
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 
 	protected function getArrayAsJson(): string

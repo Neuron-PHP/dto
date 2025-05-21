@@ -4,6 +4,12 @@ namespace Neuron\Dto\Compound;
 
 use Neuron\Dto\Dto;
 
+/**
+ * Interface for compound data types
+ *
+ * Compound data types are DTOs or arrays.
+ */
+
 interface ICompound
 {
 	/**

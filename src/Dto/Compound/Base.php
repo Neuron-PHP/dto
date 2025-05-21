@@ -4,6 +4,10 @@ namespace Neuron\Dto\Compound;
 
 use Neuron\Dto\Dto;
 
+/**
+ * Base class for compound DTOs.
+ */
+
 class Base implements ICompound
 {
 	private string $_Name;

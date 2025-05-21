@@ -79,6 +79,7 @@ class Factory
 
 		return $Collection;
 	}
+
 	/**
 	 * @param int|string $Name
 	 * @param array $PropertyData

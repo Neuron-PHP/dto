@@ -92,6 +92,7 @@ class Collection extends Base
 	 * @return string
 	 * @throws \Exception
 	 */
+
 	public function getAsJson() : string
 	{
 		$Result = '[';
