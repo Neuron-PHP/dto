@@ -6,6 +6,14 @@ use Exception;
 use Neuron\Dto\Compound\ICompound;
 use Symfony\Component\Yaml\Yaml;
 
+/**
+ * Factory class for creating Data Transfer Objects (DTOs) from YAML configuration files.
+ * 
+ * This factory reads YAML files containing DTO definitions and creates corresponding
+ * Dto objects with properties, validation rules, and nested structures.
+ * 
+ * @package Neuron\Dto
+ */
 class Factory
 {
 	private string $_FileName;
