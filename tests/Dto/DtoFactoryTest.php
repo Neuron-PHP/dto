@@ -2,7 +2,7 @@
 
 namespace Dto;
 
-use Neuron\Dto\DtoFactory;
+use Neuron\Dto\Factory;
 use PHPUnit\Framework\TestCase;
 
 class DtoFactoryTest extends TestCase
@@ -10,7 +10,7 @@ class DtoFactoryTest extends TestCase
 
 	public function test__construct()
 	{
-		$Factory = new DtoFactory( 'test.yaml' );
+		$Factory = new Factory( 'test.yaml' );
 
 		$this->assertEquals(
 			'test.yaml',
@@ -20,7 +20,7 @@ class DtoFactoryTest extends TestCase
 
 	public function testCreate()
 	{
-		$Factory = new DtoFactory( 'examples/test.yaml' );
+		$Factory = new Factory( 'examples/test.yaml' );
 
 		$Dto = $Factory->create();
 
@@ -28,13 +28,13 @@ class DtoFactoryTest extends TestCase
 
 		$this->assertEquals(
 			'array',
-			$Dto->getParameter( 'inventory' )
+			$Dto->getProperty( 'inventory' )
 				 ->getType()
 		);
 
 		$this->assertEquals(
 			$Dto,
-			$Dto->getParameter( 'address' )
+			$Dto->getProperty( 'address' )
 				 ->getValue()
 				 ->getParent()
 		);

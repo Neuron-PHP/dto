@@ -1,21 +1,32 @@
 <?php
-
 namespace Dto;
 
-use Neuron\Dto\DtoFactory;
+use Neuron\Core\Exceptions;
+use Neuron\Dto\Factory;
 use Neuron\Dto\Mapper;
-use Neuron\Dto\MapperFactory;
-use Neuron\Dto\ValidationException;
+use Neuron\Dto\Mapper\Dynamic;
 use PHPUnit\Framework\TestCase;
 
 class MapperTest extends TestCase
 {
+	public array      $SuccessPayload;
+	public Mapper\Factory $MapperFactory;
+	public Factory $DtoFactory;
 
-	public function testFlattenFields()
+	protected function setUp(): void
 	{
-		$Mapper = new Mapper();
+		$this->MapperFactory	= new Mapper\Factory( 'examples/test-json-map.yaml' );
+		$this->DtoFactory		= new Factory( 'examples/test.yaml' );
 
-		$Payload = [
+		$this->SuccessPayload = [
+			'unused' => [
+				[
+					'one' => 1,
+				],
+				[
+					'two' => 2,
+				]
+			],
 			'user' => [
 				'name' => 'test',
 				'password' => 'testtest',
@@ -30,21 +41,40 @@ class MapperTest extends TestCase
 				'inventory' => [
 					[
 						'name' => 'shoes',
-						'amount' => 1
+						'count' => 1,
+						'attributes' => [
+								'leather',
+								'boot',
+								'smelly'
+							]
 					],
 					[
 						'name' => 'jackets',
-						'amount' => 2
+						'count' => 2
 					],
 					[
 						'name' => 'pants',
-						'amount' => 3
+						'count' => 3
 					]
-				]
+				],
+				'nested' => [
+					[
+						'level2' => '2'
+					]
+				],
+				"test_username" => 'test_username',
+				"test_email" => 'test_email'
 			]
 		];
 
-		$Mapper->flattenFields( $Payload );
+		parent::setUp();
+	}
+
+	public function testFlattenFields()
+	{
+		$Mapper = new Dynamic();
+
+		$Mapper->flattenFields( $this->SuccessPayload );
 
 		$this->assertEquals(
 			$Mapper->getFields()[ 'user.name' ],
@@ -57,28 +87,36 @@ class MapperTest extends TestCase
 		);
 	}
 
-	public function testFlattenParameters()
+	public function testFlattenProperties()
 	{
-		$MapperFactory = new MapperFactory( 'examples/test-json-map.yaml' );
-		$Mapper = $MapperFactory->create();
-
-		$DtoFactory = new DtoFactory( 'examples/test.yaml' );
-		$Dto = $DtoFactory->create();
+		$Mapper	= $this->MapperFactory->create();
+		$Dto	= $this->DtoFactory->create();
 
 		$Dto->address->street = 'test';
 
-		$Mapper->flattenParameters( $Dto );
+		$Mapper->flattenProperties( $Dto );
 
 		$this->assertEquals(
-			$Mapper->getParameters()[ 'test.address.street' ]->getValue(),
+			$Mapper->getProperties()[ 'test.address.street' ]->getValue(),
 			'test'
 		);
+	}
 
+	public function testGetArrayElement()
+	{
+		$Mapper	= $this->MapperFactory->create();
+		$Dto	= $this->DtoFactory->create();
+
+		$Mapper->flattenProperties( $Dto );
+		$Array = $Mapper->getArrayPath( 'user.inventory.0.attributes.1' );
+		$Array = $Mapper->getArrayPath( 'user.inventory.0.name' );
+
+		$this->assertIsArray( $Array );
 	}
 
 	public function testSetName()
 	{
-		$Mapper = new Mapper();
+		$Mapper = new Dynamic();
 
 		$Mapper->setName( 'test' );
 
@@ -87,23 +125,61 @@ class MapperTest extends TestCase
 
 	public function testSetAlias()
 	{
-		$Mapper = new Mapper();
+		$Mapper = new Dynamic();
 
 		$Mapper->setAlias( 'test', 'alias' );
 
-		$this->assertEquals( 'alias', $Mapper->getAlias( 'test' ) );
+		$this->assertEquals( 'test', $Mapper->getAlias( 'alias' ) );
 	}
 
-	public function testMapSuccess()
+	public function testStrictMapping()
 	{
-		$MapperFactory = new MapperFactory( 'examples/test-json-map.yaml' );
-		$Mapper = $MapperFactory->create();
+		$Mapper = $this->MapperFactory->create();
 
-		$Factory = new DtoFactory( 'examples/test.yaml' );
+		$Dto = $this->DtoFactory->create();
 
-		$Dto = $Factory->create();
+		$Errors = [];
 
+		$Pass = false;
+		$Mapper->setStrictMapping( true );
+
+		try
+		{
+			$Mapper->map( $Dto, $this->SuccessPayload );
+		}
+		catch( Exceptions\NotFound $Exception )
+		{
+			$Pass = true;
+		}
+
+		$this->assertTrue( $Pass );
+	}
+
+	public function testStrictErrors()
+	{
+		$Mapper = $this->MapperFactory->create();
+
+		$Dto = $this->DtoFactory->create();
+
+		$Mapper->map( $Dto, $this->SuccessPayload );
+
+		$Mapper->setStrictErrors( true );
+
+		$this->assertEquals( true, $Mapper->isStrictErrors() );
+	}
+
+
+	public function testArrayRequired()
+	{
 		$Payload = [
+			'unused' => [
+				[
+					'one' => 1,
+				],
+				[
+					'two' => 2,
+				]
+			],
 			'user' => [
 				'name' => 'test',
 				'password' => 'testtest',
@@ -115,31 +191,44 @@ class MapperTest extends TestCase
 					'state'  => 'CA',
 					'zip'    => '90210'
 				],
-				'inventory' => [
+				'inventory' => [],
+				'nested' => [
 					[
-						'name' => 'shoes',
-						'amount' => 1
-					],
-					[
-						'name' => 'jackets',
-						'amount' => 2
-					],
-					[
-						'name' => 'pants',
-						'amount' => 3
+						'level2' => '2'
 					]
 				]
 			]
 		];
 
+		$Mapper = $this->MapperFactory->create();
 
-		$Errors = [];
+		$Dto = $this->DtoFactory->create();
 
 		try
 		{
 			$Mapper->map( $Dto, $Payload );
 		}
-		catch( ValidationException $Exception )
+		catch( Exceptions\Validation $Exception )
+		{
+			$Pass = true;
+		}
+
+		$this->assertNotEmpty( $Dto->getErrors() );
+	}
+
+	public function testMapSuccess()
+	{
+		$Mapper = $this->MapperFactory->create();
+
+		$Dto = $this->DtoFactory->create();
+
+		$Errors = [];
+
+		try
+		{
+			$Mapper->map( $Dto, $this->SuccessPayload );
+		}
+		catch( Validation $Exception )
 		{
 			$Errors = $Exception->getErrors();
 		}
@@ -148,58 +237,84 @@ class MapperTest extends TestCase
 
 		$this->assertEquals(
 			'test',
-			$Dto->getParameter( 'username' )->getValue()
+			$Dto->getProperty( 'username' )->getValue()
 		);
 
 		$this->assertEquals(
 			'testtest',
-			$Dto->getParameter( 'password' )->getValue()
+			$Dto->getProperty( 'password' )->getValue()
 		);
 
 		$this->assertEquals(
 			1,
-			$Dto->getParameter( 'inventory' )
-				 ->getChild( 0 )
-				 ->getParameter( 'amount' )
-				 ->getValue()
+			$Dto->getProperty( 'inventory' )
+				->getValue()
+				->getChild( 0 )
+				->getProperty( 'amount' )
+				->getValue()
 		);
 
 		$this->assertEquals(
 			2,
-			$Dto->getParameter( 'inventory' )
-				 ->getChild( 1 )
-				 ->getParameter( 'amount' )
-				 ->getValue()
+			$Dto->getProperty( 'inventory' )
+				->getValue()
+				->getChild( 1 )
+				->getProperty( 'amount' )
+				->getValue()
 		);
 
 		$this->assertEquals(
 			3,
-			$Dto->getParameter( 'inventory' )
-				 ->getChild( 2 )
-				 ->getParameter( 'amount' )
-				 ->getValue()
+			$Dto->getProperty( 'inventory' )
+				->getValue()
+				->getChild( 2 )
+				->getProperty( 'amount' )
+				->getValue()
 		);
 
 		$this->assertEquals(
 			3,
-			count( $Dto->getParameter( 'inventory' )->getChildren() )
+			count( $Dto->getProperty( 'inventory' )->getValue()->getChildren() )
 		);
 
 		$this->assertIsArray( $Dto->inventory );
 
 		$this->assertEquals(
 			3,
+			count(
+				$Dto->getProperty( 'inventory' )
+					->getValue()
+					->getChild( 0 )
+					->getProperty( 'attributes' )
+					->getValue()
+					->getChildren()
+			)
+		);
+
+		$this->assertEquals(
+			3,
+			count( $Dto->inventory[ 0 ]->attributes )
+		);
+
+		$Test = $Dto->inventory[ 2 ]->amount;
+
+		$this->assertEquals(
+			3,
 			$Dto->inventory[ 2 ]->amount
 		);
+
+		$this->assertEquals(
+			'boot',
+			$Dto->inventory[ 0 ]->attributes[ 1 ]
+		);
+
 	}
 
 	public function testMapFail()
 	{
-		$Mapper = new Mapper();
+		$Mapper = new Dynamic();
 
-		$Factory = new DtoFactory( 'examples/test.yaml' );
-
-		$Dto = $Factory->create();
+		$Dto = $this->DtoFactory->create();
 
 		$Payload = [
 			'username' => 'test',
@@ -217,8 +332,9 @@ class MapperTest extends TestCase
 		{
 			$Mapper->map( $Dto, $Payload );
 		}
-		catch( ValidationException $Exception )
-		{}
+		catch( Exceptions\Validation $Exception )
+		{
+		}
 
 		$this->assertNotEmpty( $Dto->getErrors() );
 
@@ -230,4 +346,25 @@ class MapperTest extends TestCase
 		);
 	}
 
+	public function testGetAsJson()
+	{
+		$Mapper = $this->MapperFactory->create();
+
+		$Dto = $this->DtoFactory->create();
+
+		$Errors = [];
+
+		try
+		{
+			$Mapper->map( $Dto, $this->SuccessPayload );
+		}
+		catch( Validation $Exception )
+		{
+			$Errors = $Exception->getErrors();
+		}
+
+		$json = (string)$Dto;
+
+		$this->assertTrue( json_validate( $json ) );
+	}
 }

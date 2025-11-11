@@ -1,0 +1,183 @@
+dto:
+  client_reference_id:
+    type: string
+  billing_merchant_user_uuid:
+    type: uuid
+  first_name:
+    type: string
+    length:
+      max: 56
+    required: true
+  last_name:
+    type: string
+    length:
+      max: 56
+    required: true
+  email:
+    type: email
+    required: true
+  phone:
+    type: us_phone_number
+    required: true
+  business:
+    type: object
+    properties:
+      name:
+        type: string
+        length:
+          max: 64
+        required: true
+      tin:
+        type: ein
+        required: true
+      transaction_fee_percent:
+        type: float
+        range:
+          min: 0
+          max: 99.9
+      trading_name:
+        type: string
+        required: true
+      entity_type:
+        type: string
+      incorporation_date:
+        type: date
+      incorporation_state:
+        type: string
+      industry:
+        type: string
+      industry_classification:
+        type: object
+        properties:
+          code_type:
+            type: string
+          codes:
+            type: array
+            items:
+              type: string
+          description:
+            type: string
+      source_of_wealth:
+        type: string
+      source_of_funds:
+        type: string
+      first_transaction_completed_at:
+        type: date_time
+      product_type:
+        type: string
+      registered_as_active:
+        type: bool
+      address_type:
+        type: string
+        required: true
+      address:
+        type: object
+        properties:
+          line_1:
+            type: string
+            required: true
+          city:
+            type: string
+            required: true
+          state:
+            type: string
+            required: true
+          zip:
+            type: string
+            length:
+              min: 5
+              max: 5
+            required: true
+  business_owners:
+    type: array
+    length:
+      max: 5
+    items:
+      type: object
+      properties:
+        first_name:
+          type: string
+          length:
+            max: 56
+          required: true
+        last_name:
+          type: string
+          length:
+            max: 56
+          required: true
+        dob:
+          type: date
+          required: true
+        ssn9:
+          type: string
+          length:
+            min: 9
+            max: 9
+          required: true
+        email:
+          type: email
+        phone:
+          type: us_phone_number
+        occupation:
+          type: string
+        address:
+          type: object
+          properties:
+          line_1:
+            type: string
+            required: true
+          city:
+            type: string
+            required: true
+          state:
+            type: string
+            required: true
+          zip:
+            type: string
+            min: 5
+            max: 5
+            required: true
+        is_beneficial_owner:
+          type: boolean
+          required: true
+        is_director:
+          type: boolean
+          required: true
+        is_account_owner:
+          type: boolean
+          required: true
+        is_share_holder:
+          type: boolean
+          required: true
+        is_significant_control_person:
+          type: boolean
+          required: true
+        ownership_percentage:
+          type: integer
+        first_transaction_completed_at:
+          type: date_time
+        product_type:
+          type: string
+  bank_account:
+    type: object
+    properties:
+      custom:
+        type: object
+        properties:
+          account_number:
+            type: string
+            length:
+              max: 17
+          routing_number:
+            type: string
+            length:
+              min: 9
+              max: 9
+          account_name:
+            type: string
+          account_type:
+            type: string
+          validate_account_routing:
+            type: boolean
+
+

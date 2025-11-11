@@ -2,181 +2,253 @@
 
 namespace Neuron\Dto;
 
+use Neuron\Core\Exceptions;
+use Neuron\Core\Exceptions\PropertyNotFound;
+use Neuron\Core\Exceptions\Validation;
+use Neuron\Dto\Compound\Base;
 use Neuron\Log\Log;
 
 /**
- * Class DTO
+ * DTO Class handles compound objects with named properties.
  */
-class Dto
+
+class Dto extends Base
 {
-	private string $_Name;
-	private array $_Parameters = [];
-	private array $_Errors = [];
-	private ?Dto $_Parent = null;
+	private array $properties = [];
 
 	/**
 	 * Dto constructor.
 	 */
+
 	public function __construct()
 	{
+	}
+
+
+	/**
+	 * Gets a list of all validation errors.
+	 *
+	 * @return array
+	 */
+
+	public function getProperties(): array
+	{
+		return $this->properties;
+	}
+
+	/**
+	 * Magic method for accessing parameters via dto->parameter
+	 *
+	 * @param string $name
+	 * @return mixed
+	 * @throws PropertyNotFound
+	 */
+
+	public function __get( string $name ) : mixed
+	{
+		$parameter = $this->getProperty( $name );
+
+		if( !$parameter )
+		{
+			throw new Exceptions\PropertyNotFound( $name );
+		}
+
+		if( $parameter->getType() === 'array' )
+		{
+			$itemType = $parameter->getValue()->getItemTemplate()->getType();
+			if( $itemType !== 'array' && $itemType !== 'object' )
+			{
+				$items = [];
+				foreach( $parameter->getValue()->getChildren() as $child )
+				{
+					$items[] = $child->getValue();
+				}
+				return $items;
+			}
+
+			return $parameter->getValue()->getChildren();
+		}
+
+		return $parameter->getValue();
+	}
+
+	/**
+	 * Magic method for setting parameter values via dto->parameter = value.
+	 *
+	 * @param string $name
+	 * @param mixed $value
+	 * @return void
+	 * @throws Validation
+	 * @throws PropertyNotFound
+	 */
+
+	public function __set( string $name, mixed $value ) : void
+	{
+		$parameter = $this->getProperty( $name );
+
+		if( !$parameter )
+		{
+			throw new Exceptions\PropertyNotFound( $name );
+		}
+
+		$parameter->setValue( $value );
+		$parameter->validate();
+	}
+
+	/**
+	 * Gets a parameter by name.
+	 *
+	 * @param string $name
+	 * @return Property|null
+	 */
+
+	public function getProperty( string $name ): ?Property
+	{
+		return $this->properties[ $name ] ?? null;
+	}
+
+	/**
+	 * Sets a parameter by name.
+	 *
+	 * @param string $name
+	 * @param Property $parameter
+	 * @return $this
+	 */
+
+	public function setProperty( string $name, Property $parameter ): Dto
+	{
+		$this->properties[ $name ] = $parameter;
+
+		return $this;
+	}
+
+	/**
+	 * Validates the values for all parameters.
+	 *
+	 * @return void
+	 * @throws Validation
+	 */
+
+	public function validate() : void
+	{
+		$parameters = $this->getProperties();
+
+		foreach( $parameters as $property )
+		{
+			$this->validateProperty( $property );
+		}
+
+		foreach( $this->getErrors() as $error )
+		{
+			Log::error( $error );
+		}
+	}
+
+	/**
+	 * @param mixed $property
+	 * @return void
+	 * @throws Validation
+	 */
+
+	protected function validateProperty( mixed $property ): void
+	{
+		if( $property->getType() == 'object' )
+		{
+			$this->validateDto( $property->getValue() );
+		}
+		elseif( $property->getType() == 'array' )
+		{
+			$this->validateArray( $property );
+		}
+		else
+		{
+			$this->validateScalar( $property );
+		}
+	}
+
+	/**
+	 * @param Dto $dto
+	 * @return void
+	 * @throws Validation
+	 */
+
+	protected function validateDto( Dto $dto ): void
+	{
+		$dto->validate();
+		$this->addErrors( $dto->getErrors() );
+	}
+
+	/**
+	 * @param Property $property
+	 * @return void
+	 * @throws Validation
+	 */
+
+	protected function validateArray( Property $property ): void
+	{
+		try
+		{
+			$property->validate();
+		}
+		catch( Exceptions\Validation $exception )
+		{
+			$this->addErrors( $exception->errors );
+		}
+
+		$this->addErrors( $property->getValue()->getErrors() );
+
+		foreach( $property->getValue()->getChildren() as $item )
+		{
+			$this->validateScalar( $item );
+		}
+	}
+
+	/**
+	 * @param mixed $property
+	 * @return void
+	 */
+
+	protected function validateScalar( mixed $property ): void
+	{
+		try
+		{
+			$property->validate();
+		}
+		catch( Exceptions\Validation $exception )
+		{
+			$this->addErrors( $exception->errors );
+		}
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getName(): string
-	{
-		return $this->_Name;
-	}
 
-	/**
-	 * @param string $Name
-	 * @return $this
-	 */
-	public function setName( string $Name ): Dto
+	public function getAsJson(): string
 	{
-		$this->_Name = $Name;
-		return $this;
-	}
+		$result = '{';
 
-	/**
-	 * @return Dto|null
-	 */
-	public function getParent(): ?Dto
-	{
-		return $this->_Parent;
-	}
-
-	/**
-	 * @param Dto|null $Parent
-	 * @return $this
-	 */
-	public function setParent( ?Dto $Parent ): Dto
-	{
-		$this->_Parent = $Parent;
-		return $this;
-	}
-
-	/**
-	 * @param array $Errors
-	 * @return $this
-	 */
-	public function addErrors( array $Errors) : Dto
-	{
-		foreach( $Errors as $Error )
+		foreach( $this->getProperties() as $property )
 		{
-			$this->_Errors[] = "{$this->getName()}.$Error";
-		}
+			$json = $property->getAsJson();
 
-		return $this;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getErrors(): array
-	{
-		return $this->_Errors;
-	}
-
-	/**
-	 * @return void
-	 */
-	public function clearErrors(): void
-	{
-		$this->_Errors = [];
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getParameters(): array
-	{
-		return $this->_Parameters;
-	}
-
-	/**
-	 * @param string $Name
-	 * @return mixed
-	 * @throws ParameterNotFoundException
-	 */
-	public function __get( string $Name ) : mixed
-	{
-		$Parameter = $this->getParameter( $Name );
-
-		if( !$Parameter )
-		{
-			throw new ParameterNotFoundException( $Name );
-		}
-
-		if( count( $Parameter->getChildren() ) )
-		{
-			return $Parameter->getChildren();
-		}
-
-		return $Parameter->getValue();
-	}
-
-	/**
-	 * @param string $Name
-	 * @param mixed $Value
-	 * @return void
-	 * @throws ParameterNotFoundException
-	 * @throws ValidationException
-	 */
-	public function __set( string $Name, mixed $Value ) : void
-	{
-		$Parameter = $this->getParameter( $Name );
-
-		if( !$Parameter )
-		{
-			throw new ParameterNotFoundException( $Name );
-		}
-
-		$Parameter->setValue( $Value );
-		$Parameter->validate();
-	}
-
-	/**
-	 * @param string $Name
-	 * @return Parameter|null
-	 */
-	public function getParameter( string $Name ): ?Parameter
-	{
-		return $this->_Parameters[ $Name ] ?? null;
-	}
-
-	public function setParameter( string $Name, Parameter $Parameter ): Dto
-	{
-		$this->_Parameters[ $Name ] = $Parameter;
-
-		return $this;
-	}
-
-	public function validate() : void
-	{
-		$Parameters = $this->getParameters();
-
-		foreach( $Parameters as $Parameter )
-		{
-			if( $Parameter->getType() == 'object')
+			if( $json )
 			{
-				$Dto = $Parameter->getValue();
-				$Dto->validate();
-				$this->addErrors( $Dto->getErrors() );
-			}
-			else
-			{
-				try
-				{
-					$Parameter->validate();
-				}
-				catch( ValidationException $Exception )
-				{
-					Log::warning( $Exception->getMessage() );
-					$this->addErrors( $Exception->getErrors() );
-				}
+				$result .= $json . ',';
 			}
 		}
+
+		$result = substr($result, 0, -1);
+
+		return $result.'}';
+	}
+
+	/**
+	 * @return string
+	 */
+
+	public function __toString(): string
+	{
+		return $this->getAsJson();
 	}
 }
