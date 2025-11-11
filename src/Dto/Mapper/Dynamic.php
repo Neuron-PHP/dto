@@ -14,12 +14,12 @@ use Neuron\Log\Log;
 
 class Dynamic implements IMapper
 {
-	private string	$_Name;
-	private array	$_Aliases = [];
-	private array	$_Fields;
-	private array	$_Properties;
-	private bool 	$_StrictErrors = false;
-	private bool	$_StrictMapping = false;
+	private string	$name;
+	private array	$aliases = [];
+	private array	$fields;
+	private array	$properties;
+	private bool 	$strictErrors = false;
+	private bool	$strictMapping = false;
 
 	public function __construct()
 	{
@@ -31,19 +31,19 @@ class Dynamic implements IMapper
 
 	public function isStrictErrors(): bool
 	{
-		return $this->_StrictErrors;
+		return $this->strictErrors;
 	}
 
 	/**
 	 * StrictErrors generates a type error immediately instead of returning the errors in batch.
 	 *
-	 * @param bool $Strict
+	 * @param bool $strict
 	 * @return $this
 	 */
 
-	public function setStrictErrors( bool $Strict ): Dynamic
+	public function setStrictErrors( bool $strict ): Dynamic
 	{
-		$this->_StrictErrors = $Strict;
+		$this->strictErrors = $strict;
 		return $this;
 	}
 
@@ -55,17 +55,17 @@ class Dynamic implements IMapper
 
 	public function isStrictMapping(): bool
 	{
-		return $this->_StrictMapping;
+		return $this->strictMapping;
 	}
 
 	/**
-	 * @param bool $StrictMapping
+	 * @param bool $strictMapping
 	 * @return $this
 	 */
 
-	public function setStrictMapping( bool $StrictMapping ): Dynamic
+	public function setStrictMapping( bool $strictMapping ): Dynamic
 	{
-		$this->_StrictMapping = $StrictMapping;
+		$this->strictMapping = $strictMapping;
 		return $this;
 	}
 
@@ -75,7 +75,7 @@ class Dynamic implements IMapper
 
 	public function getFields() : array
 	{
-		return $this->_Fields;
+		return $this->fields;
 	}
 
 	/**
@@ -84,7 +84,7 @@ class Dynamic implements IMapper
 
 	public function getProperties() : array
 	{
-		return $this->_Properties;
+		return $this->properties;
 	}
 
 	/**
@@ -93,31 +93,31 @@ class Dynamic implements IMapper
 
 	public function getName(): string
 	{
-		return $this->_Name;
+		return $this->name;
 	}
 
 	/**
-	 * @param string $Name
+	 * @param string $name
 	 * @return $this
 	 */
 
-	public function setName( string $Name ): Dynamic
+	public function setName( string $name ): Dynamic
 	{
-		$this->_Name = $Name;
+		$this->name = $name;
 		return $this;
 	}
 
 	/**
 	 * Sets the mapping alias for a property key.
 	 *
-	 * @param string $PropertyName
-	 * @param string $AliasName
+	 * @param string $propertyName
+	 * @param string $aliasName
 	 * @return $this
 	 */
 
-	public function setAlias( string $PropertyName, string $AliasName ): Dynamic
+	public function setAlias( string $propertyName, string $aliasName ): Dynamic
 	{
-		$this->_Aliases[ $AliasName ] = $PropertyName;
+		$this->aliases[ $aliasName ] = $propertyName;
 
 		return $this;
 	}
@@ -125,37 +125,37 @@ class Dynamic implements IMapper
 	/**
 	 * Gets the property key for a given alias.
 	 *
-	 * @param string $AliasName
+	 * @param string $aliasName
 	 * @return string|null
 	 */
 
-	public function getAlias( string $AliasName ): ?string
+	public function getAlias( string $aliasName ): ?string
 	{
-		return $this->_Aliases[ $AliasName ] ?? null;
+		return $this->aliases[ $aliasName ] ?? null;
 	}
 
 	/**
 	 * Assign data to a dto based on specific field mapping.
 	 *
-	 * @param Dto $Dto
-	 * @param array $Data
+	 * @param Dto $dto
+	 * @param array $data
 	 * @return Dto
 	 * @throws MapNotFound
 	 * @throws Validation
 	 * @throws \Neuron\Dto\Validation
 	 */
 
-	public function map( Dto $Dto, array $Data ) : Dto
+	public function map( Dto $dto, array $data ) : Dto
 	{
-		Log::debug( "Mapping {$Dto->getName()}..." );
+		Log::debug( "Mapping {$dto->getName()}..." );
 
-		$Dto->clearErrors();
+		$dto->clearErrors();
 
-		$this->mapDto( $Dto, $Data );
+		$this->mapDto( $dto, $data );
 
 		Log::debug( "Mapping complete." );
 
-		return $Dto;
+		return $dto;
 	}
 
 	/**
@@ -163,61 +163,61 @@ class Dynamic implements IMapper
 	 * The result is a one level dictionary where each field is keyed such that
 	 * level1.level2.level3.parameter = value.
 	 *
-	 * @param array $Array
-	 * @param string|null $CurrentKey
+	 * @param array $array
+	 * @param string|null $currentKey
 	 * @return void
 	 */
 
-	public function flattenFields( array $Array, ?string $CurrentKey = null ): void
+	public function flattenFields( array $array, ?string $currentKey = null ): void
 	{
-		foreach( $Array as $Key => $Value )
+		foreach( $array as $key => $value )
 		{
-			if( $CurrentKey )
+			if( $currentKey )
 			{
-				$MasterKey = $CurrentKey.'.'.$Key;
+				$masterKey = $currentKey.'.'.$key;
 			}
 			else
 			{
-				$MasterKey = $Key;
+				$masterKey = $key;
 			}
 
-			if( is_array( $Value ) )
+			if( is_array( $value ) )
 			{
-				$this->flattenFields( $Value, $MasterKey );
+				$this->flattenFields( $value, $masterKey );
 			}
 			else
 			{
-				$this->_Fields[ $MasterKey ] = $Value;
+				$this->fields[ $masterKey ] = $value;
 			}
 		}
 	}
 
 	/**
-	 * @param Property $Property
-	 * @param string $Key
-	 * @param string $MasterKey
+	 * @param Property $property
+	 * @param string $key
+	 * @param string $masterKey
 	 * @return void
 	 */
 
-	protected function flattenArray( Property $Property, string $Key, string $MasterKey ): void
+	protected function flattenArray( Property $property, string $key, string $masterKey ): void
 	{
-		$Template = $Property->getValue()
+		$template = $property->getValue()
 									->getItemTemplate();
 
-		if( $Template->getType() == 'object' )
+		if( $template->getType() == 'object' )
 		{
-			$this->_Properties[ $Key ] = $Property;
-			$Template->getValue()
-						->setName( $Property->getName() );
-			$this->flattenProperties( $Template->getValue(), $MasterKey );
+			$this->properties[ $key ] = $property;
+			$template->getValue()
+						->setName( $property->getName() );
+			$this->flattenProperties( $template->getValue(), $masterKey );
 		}
-		elseif( $Template->getType() == 'array' )
+		elseif( $template->getType() == 'array' )
 		{
-			Log::error( "$Key: Array of arrays are not supported." );
+			Log::error( "$key: Array of arrays are not supported." );
 		}
 		else
 		{
-			$this->_Properties[ $Key ] = $Property;
+			$this->properties[ $key ] = $property;
 		}
 	}
 
@@ -226,34 +226,34 @@ class Dynamic implements IMapper
 	 * The result is a one level dictionary where each field is keyed such that
 	 * level1.level2.level3.parameter = parameter.
 	 *
-	 * @param Dto $Dto
-	 * @param string|null $MasterKey
+	 * @param Dto $dto
+	 * @param string|null $masterKey
 	 * @return void
 	 */
 
-	public function flattenProperties( ICompound $Dto, ?string $MasterKey = null ): void
+	public function flattenProperties( ICompound $dto, ?string $masterKey = null ): void
 	{
-		$MasterKey .= ( $MasterKey ? '.' : '' ).$Dto->getName();
+		$masterKey .= ( $masterKey ? '.' : '' ).$dto->getName();
 
-		$Properties = $Dto->getProperties();
+		$properties = $dto->getProperties();
 
-		/** @var Property $Property */
-		foreach( $Properties as $Property )
+		/** @var Property $property */
+		foreach( $properties as $property )
 		{
-			$Key = $MasterKey.'.'.$Property->getName();
+			$key = $masterKey.'.'.$property->getName();
 
-			if( $Property->getType() == 'object' )
+			if( $property->getType() == 'object' )
 			{
-				$this->_Properties[ $Key ] = $Property;
-				$this->flattenProperties( $Property->getValue(), $MasterKey );
+				$this->properties[ $key ] = $property;
+				$this->flattenProperties( $property->getValue(), $masterKey );
 			}
-			elseif( $Property->getType() == 'array' )
+			elseif( $property->getType() == 'array' )
 			{
-				$this->flattenArray( $Property, $Key, $MasterKey );
+				$this->flattenArray( $property, $key, $masterKey );
 			}
 			else
 			{
-				$this->_Properties[ $Key ] = $Property;
+				$this->properties[ $key ] = $property;
 			}
 		}
 	}
@@ -261,84 +261,84 @@ class Dynamic implements IMapper
 	/**
 	 * Gets a dto parameter based on its assigned alias.
 	 *
-	 * @param string $Key
+	 * @param string $key
 	 * @return Property|null
 	 */
 
-	protected function getPropertyByAlias( string $Key ) : ?Property
+	protected function getPropertyByAlias( string $key ) : ?Property
 	{
-		$Alias = $this->getAlias( $Key );
+		$alias = $this->getAlias( $key );
 
-		if( !$Alias )
-			Log::warning( "Alias not found for key: $Key." );
+		if( !$alias )
+			Log::warning( "Alias not found for key: $key." );
 
-		return $this->_Properties[ $Alias ] ?? null;
+		return $this->properties[ $alias ] ?? null;
 	}
 
 	/**
 	 * Gets a dto by its assigned key
 	 *
-	 * @param string $Key
+	 * @param string $key
 	 * @return Property|null
 	 */
 
-	protected function getPropertyByKey( string $Key ) : ?Property
+	protected function getPropertyByKey( string $key ) : ?Property
 	{
-		return $this->_Properties[ $Key ] ?? null;
+		return $this->properties[ $key ] ?? null;
 	}
 
 	/**
 	 * Build a the data that represents a single array step within an assignment.
 	 *
-	 * @param string $ArrayKey
-	 * @param int $Element
-	 * @param string $Name
+	 * @param string $arrayKey
+	 * @param int $element
+	 * @param string $name
 	 * @return array
 	 * @throws MapNotFound
 	 */
 
-	protected function buildArrayPart( string $ArrayKey, int $Element, string $Name ): array
+	protected function buildArrayPart( string $arrayKey, int $element, string $name ): array
 	{
-		$ArrayAlias = $this->getAlias( $ArrayKey );
+		$arrayAlias = $this->getAlias( $arrayKey );
 
-		if( !$ArrayAlias )
+		if( !$arrayAlias )
 		{
-			$Message = "Missing map for '{$ArrayKey}'";
-			Log::warning( $Message );
-			throw new Exceptions\NotFound( $Message );
+			$message = "Missing map for '{$arrayKey}'";
+			Log::warning( $message );
+			throw new Exceptions\NotFound( $message );
 		}
 
-		if( strlen( $Name ) )
+		if( strlen( $name ) )
 		{
-			$TempKey = $ArrayKey.'.'.$Name;
+			$tempKey = $arrayKey.'.'.$name;
 
-			$TempKey = $this->getAlias( $TempKey );
+			$tempKey = $this->getAlias( $tempKey );
 
-			$ChildParts	= explode( '.', $TempKey );;
-			$Name 		= $ChildParts[ count( $ChildParts ) - 1 ];
+			$childParts	= explode( '.', $tempKey );;
+			$name 		= $childParts[ count( $childParts ) - 1 ];
 		}
 
 		return [
-			'Element'	=> $Element,
-			'ArrayKey'	=> $ArrayAlias,
-			'Name'		=> $Name ?? ""
+			'Element'	=> $element,
+			'ArrayKey'	=> $arrayAlias,
+			'Name'		=> $name ?? ""
 		];
 	}
 
 	/**
 	 * Returns true if the Key references an array.
 	 *
-	 * @param string $Key
+	 * @param string $key
 	 * @return bool
 	 */
 
-	protected function isArray( string $Key ) : bool
+	protected function isArray( string $key ) : bool
 	{
-		$Parts = explode( '.', $Key );
+		$parts = explode( '.', $key );
 
-		foreach( $Parts as $Index => $Part )
+		foreach( $parts as $index => $part )
 		{
-			if( ctype_digit( $Part ) )
+			if( ctype_digit( $part ) )
 			{
 				return true;
 			}
@@ -354,117 +354,117 @@ class Dynamic implements IMapper
 	 * ItemKey points to the parameter being set in the array element.
 	 * Name is the de-aliased name of the parameter to be set.
 	 *
-	 * @param string $Key
+	 * @param string $key
 	 * @return array|null
 	 * @throws MapNotFound
 	 */
 
-	public function getArrayPath( string $Key ) : ?array
+	public function getArrayPath( string $key ) : ?array
 	{
-		$Data		= [];
-		$Parts		= explode( '.', $Key );
-		$ArrayKey	= '';
+		$data		= [];
+		$parts		= explode( '.', $key );
+		$arrayKey	= '';
 
-		foreach( $Parts as $Index => $Part )
+		foreach( $parts as $index => $part )
 		{
-			if( ctype_digit( $Part ) )
+			if( ctype_digit( $part ) )
 			{
-				$Element	= (int)$Part;
+				$element	= (int)$part;
 
-				if( $Index + 1 <= count( $Parts ) - 1 )
+				if( $index + 1 <= count( $parts ) - 1 )
 				{
-					$Part = $Parts[ $Index + 1 ];
+					$part = $parts[ $index + 1 ];
 				}
 				else
 				{
-					$Part = '';
+					$part = '';
 				}
 
-				$Data[] = $this->buildArrayPart( $ArrayKey, $Element, $Part );
+				$data[] = $this->buildArrayPart( $arrayKey, $element, $part );
 			}
 			else
 			{
-				$ArrayKey .= ( $ArrayKey ? '.' : '' ) . $Part;
+				$arrayKey .= ( $arrayKey ? '.' : '' ) . $part;
 			}
 		}
 
-		return $Data;
+		return $data;
 	}
 
 	/**
 	 * Internal mapping method.
 	 *
-	 * @param Dto $Dto
-	 * @param array $Data
+	 * @param Dto $dto
+	 * @param array $data
 	 * @return void
 	 * @throws Exceptions\Validation | Exceptions\MapNotFound|\Neuron\Dto\Validation
 	 */
 
-	private function mapDto( Dto $Dto, array $Data ): void
+	private function mapDto( Dto $dto, array $data ): void
 	{
-		$this->createDataMap( $Dto, $Data );
+		$this->createDataMap( $dto, $data );
 
-		foreach( $this->_Aliases as $Alias => $ParamName )
+		foreach( $this->aliases as $alias => $paramName )
 		{
-			if( !$this->getPropertyByAlias( $Alias ) )
+			if( !$this->getPropertyByAlias( $alias ) )
 			{
-				Log::warning( "Missing parameter for map $Alias : $ParamName" );
+				Log::warning( "Missing parameter for map $alias : $paramName" );
 			}
 		}
 
-		foreach( $this->getFields() as $Key => $Value )
+		foreach( $this->getFields() as $key => $value )
 		{
-			if( $this->isArray( $Key ) )
+			if( $this->isArray( $key ) )
 			{
 				try
 				{
-					$Array = $this->getArrayPath( $Key );
-					$this->mapArray( $Array, $Value );
+					$array = $this->getArrayPath( $key );
+					$this->mapArray( $array, $value );
 				}
-				catch( Exceptions\NotFound $Exception )
+				catch( Exceptions\NotFound $exception )
 				{
 				}
 			}
 			else
 			{
-				$this->mapScalar( $Key, $Value );
+				$this->mapScalar( $key, $value );
 			}
 		}
 
-		$Dto->validate();
+		$dto->validate();
 	}
 
 	/**
 	 * Map a non-compound variable.
 	 *
-	 * @param int|string $Key
-	 * @param mixed $Value
+	 * @param int|string $key
+	 * @param mixed $value
 	 * @return void
 	 * @throws NotFound
 	 */
 
-	protected function mapScalar( int|string $Key, mixed $Value ): void
+	protected function mapScalar( int|string $key, mixed $value ): void
 	{
-		$Property = $this->getPropertyByAlias( $Key );
+		$property = $this->getPropertyByAlias( $key );
 
-		if( $Property === null )
+		if( $property === null )
 		{
 			if( $this->isStrictMapping() )
-				throw new Exceptions\NotFound( $Key );
+				throw new Exceptions\NotFound( $key );
 
 			return;
 		}
 
-		$Parent = $Property->getParent()
+		$parent = $property->getParent()
 								 ?->getParent();
 
-		if( $Parent === null )
+		if( $parent === null )
 		{
-			$Property->setValue( $Value );
+			$property->setValue( $value );
 			return;
 		}
 
-		if( get_class( $Parent ) == 'Neuron\Dto\Collection' )
+		if( get_class( $parent ) == 'Neuron\Dto\Collection' )
 		{
 			/**
 			 * This handles a scalar that is mapped to an array.
@@ -478,23 +478,23 @@ class Dynamic implements IMapper
 			 * the value.
 			 */
 
-			foreach( $Parent->getChildren() as $Child )
+			foreach( $parent->getChildren() as $child )
 			{
-				$Target = $Child->getProperty( $Property->getName() );
-				if( !$Target->getValue() )
+				$target = $child->getProperty( $property->getName() );
+				if( !$target->getValue() )
 				{
-					$Target->setValue( $Value );
+					$target->setValue( $value );
 					return;
 				}
 			}
 
-			$Template	= $Parent->getItemTemplate();
-			$DeepCopy	= new DeepCopy();
-			$Item 		= $DeepCopy->copy( $Template->getValue() );
+			$template	= $parent->getItemTemplate();
+			$deepCopy	= new DeepCopy();
+			$item 		= $deepCopy->copy( $template->getValue() );
 
-			$Parent->addChild( $Item );
-			$Item->getProperty( $Property->getName() )
-				  ->setValue( $Value );
+			$parent->addChild( $item );
+			$item->getProperty( $property->getName() )
+				  ->setValue( $value );
 		}
 	}
 
@@ -506,21 +506,21 @@ class Dynamic implements IMapper
 	 * A path must be walked through to get to the final value to be set and the
 	 * ArrayData is the map.
 	 *
-	 * @param array $ArrayData
-	 * @param mixed $Value
+	 * @param array $arrayData
+	 * @param mixed $value
 	 * @return void
 	 * @throws Exceptions\Validation
 	 */
 
-	protected function mapArray( array $ArrayData, mixed $Value ): void
+	protected function mapArray( array $arrayData, mixed $value ): void
 	{
-		$Array = null;
+		$array = null;
 
-		foreach( $ArrayData as $ArrayPart )
+		foreach( $arrayData as $arrayPart )
 		{
-			Log::debug( "Mapping key: {$ArrayPart['ArrayKey']}', Index: {$ArrayPart['Element']}, Property: {$ArrayPart['Name']}" );
+			Log::debug( "Mapping key: {$arrayPart['ArrayKey']}', Index: {$arrayPart['Element']}, Property: {$arrayPart['Name']}" );
 
-			if( $Array === null )
+			if( $array === null )
 			{
 				/**
 				 * Array will only be non-null when a value is being assigned to an
@@ -529,12 +529,12 @@ class Dynamic implements IMapper
 				 * property to assign the value to.
 				 */
 
-				$Array = $this->getPropertyByKey( $ArrayPart[ 'ArrayKey' ] );
+				$array = $this->getPropertyByKey( $arrayPart[ 'ArrayKey' ] );
 			}
 
-			$ArrayItem = $Array->getValue()->getChild( $ArrayPart[ 'Element' ] );
+			$arrayItem = $array->getValue()->getChild( $arrayPart[ 'Element' ] );
 
-			if( $ArrayItem === null )
+			if( $arrayItem === null )
 			{
 				/**
 				 * If array element doesn't exist, crate it by cloning the item template
@@ -543,22 +543,22 @@ class Dynamic implements IMapper
 				 * that each item in the array will contain.
 				 */
 
-				$Template = $Array->getValue()->getItemTemplate();
+				$template = $array->getValue()->getItemTemplate();
 
-				$DeepCopy = new DeepCopy();
+				$deepCopy = new DeepCopy();
 
-				if( is_object( $Template->getValue() ) )
+				if( is_object( $template->getValue() ) )
 				{
 					/**
 					 * If it's an object, clone the composite stored in the template value.
 					 */
 
-					$ArrayItem = $DeepCopy->copy( $Template->getValue() );
+					$arrayItem = $deepCopy->copy( $template->getValue() );
 
-					$Array->getValue()
-						  ->addChild( $ArrayItem );
+					$array->getValue()
+						  ->addChild( $arrayItem );
 
-					$ArrayItem = $ArrayItem->getProperty( $ArrayPart[ 'Name' ] );
+					$arrayItem = $arrayItem->getProperty( $arrayPart[ 'Name' ] );
 				}
 				else
 				{
@@ -567,40 +567,40 @@ class Dynamic implements IMapper
 					 * the property as a parameter.
 					 */
 
-					$ArrayItem = $DeepCopy->copy( $Template );
+					$arrayItem = $deepCopy->copy( $template );
 
-					$Array->getValue()
-						  ->addChild( $ArrayItem );
+					$array->getValue()
+						  ->addChild( $arrayItem );
 				}
 			}
 			else
 			{
-				if( get_class( $ArrayItem ) == Dto::class )
+				if( get_class( $arrayItem ) == Dto::class )
 				{
 					/**
 					 * If the array item exists and it is a dto
 					 * then set the next item to the dto property.
 					 */
 
-					$ArrayItem = $ArrayItem->getProperty( $ArrayPart[ 'Name' ] );
+					$arrayItem = $arrayItem->getProperty( $arrayPart[ 'Name' ] );
 				}
 			}
 
-			$Array = $ArrayItem;
+			$array = $arrayItem;
 		}
 
-		$Array->setValue( $Value );
+		$array->setValue( $value );
 	}
 
 	/**
-	 * @param Dto $Dto
-	 * @param array $Data
+	 * @param Dto $dto
+	 * @param array $data
 	 * @return void
 	 */
 
-	public function createDataMap( Dto $Dto, array $Data ): void
+	public function createDataMap( Dto $dto, array $data ): void
 	{
-		$this->flattenProperties( $Dto );
-		$this->flattenFields( $Data );
+		$this->flattenProperties( $dto );
+		$this->flattenFields( $data );
 	}
 }

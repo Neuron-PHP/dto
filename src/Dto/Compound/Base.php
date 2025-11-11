@@ -10,9 +10,9 @@ use Neuron\Dto\Dto;
 
 class Base implements ICompound
 {
-	private string $_Name;
-	private array $_Errors = [];
-	private ?ICompound $_Parent = null;
+	private string $name;
+	private array $errors = [];
+	private ?ICompound $parent = null;
 
 	/**
 	 * @return string
@@ -20,17 +20,17 @@ class Base implements ICompound
 
 	public function getName(): string
 	{
-		return $this->_Name;
+		return $this->name;
 	}
 
 	/**
-	 * @param string $Name
+	 * @param string $name
 	 * @return ICompound
 	 */
 
-	public function setName( string $Name ): ICompound
+	public function setName( string $name ): ICompound
 	{
-		$this->_Name = $Name;
+		$this->name = $name;
 		return $this;
 	}
 
@@ -40,32 +40,32 @@ class Base implements ICompound
 
 	public function getParent(): ?ICompound
 	{
-		return $this->_Parent;
+		return $this->parent;
 	}
 
 	/**
-	 * @param Dto|null $Parent
+	 * @param Dto|null $parent
 	 * @return ICompound
 	 */
 
-	public function setParent( ?ICompound $Parent ): ICompound
+	public function setParent( ?ICompound $parent ): ICompound
 	{
-		$this->_Parent = $Parent;
+		$this->parent = $parent;
 		return $this;
 	}
 
 	/**
 	 * Adds a validation error to the list.
 	 *
-	 * @param array $Errors
+	 * @param array $errors
 	 * @return ICompound
 	 */
 
-	public function addErrors( array $Errors) : ICompound
+	public function addErrors( array $errors) : ICompound
 	{
-		foreach( $Errors as $Error )
+		foreach( $errors as $error )
 		{
-			$this->_Errors[] = "{$this->getName()}.$Error";
+			$this->errors[] = "{$this->getName()}.$error";
 		}
 
 		return $this;
@@ -79,7 +79,7 @@ class Base implements ICompound
 
 	public function getErrors(): array
 	{
-		return $this->_Errors;
+		return $this->errors;
 	}
 
 	/**
@@ -90,7 +90,7 @@ class Base implements ICompound
 
 	public function clearErrors(): void
 	{
-		$this->_Errors = [];
+		$this->errors = [];
 	}
 
 }

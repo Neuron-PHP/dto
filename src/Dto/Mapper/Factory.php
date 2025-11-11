@@ -6,15 +6,15 @@ use Symfony\Component\Yaml\Yaml;
 
 class Factory
 {
-	private ?string $_FileName;
+	private ?string $_fileName;
 
 	/**
-	 * @param ?string $FileName
+	 * @param ?string $fileName
 	 */
 
-	public function __construct( ?string $FileName = null )
+	public function __construct( ?string $fileName = null )
 	{
-		$this->_FileName = $FileName;
+		$this->_fileName = $fileName;
 	}
 
 	/**
@@ -23,7 +23,7 @@ class Factory
 
 	public function getFileName(): string
 	{
-		return $this->_FileName;
+		return $this->_fileName;
 	}
 
 	/**
@@ -32,28 +32,28 @@ class Factory
 
 	public function create() : Dynamic
 	{
-		$Name = pathinfo( $this->_FileName )[ 'filename' ];
-		$Data = Yaml::parseFile( $this->_FileName );
+		$name = pathinfo( $this->_fileName )[ 'filename' ];
+		$data = Yaml::parseFile( $this->_fileName );
 
-		return $this->createMapper( $Name, $Data[ 'map' ] );
+		return $this->createMapper( $name, $data[ 'map' ] );
 	}
 
 	/**
-	 * @param string $Name
-	 * @param array $Data
+	 * @param string $name
+	 * @param array $data
 	 * @return Dynamic
 	 */
 
-	protected function createMapper( string $Name, array $Data ) : Dynamic
+	protected function createMapper( string $name, array $data ) : Dynamic
 	{
-		$Mapper = new Dynamic();
-		$Mapper->setName( $Name );
+		$mapper = new Dynamic();
+		$mapper->setName( $name );
 
-		foreach( $Data as $Key => $Value )
+		foreach( $data as $key => $value )
 		{
-			$Mapper->setAlias( $Value, $Key );
+			$mapper->setAlias( $value, $key );
 		}
 
-		return $Mapper;
+		return $mapper;
 	}
 }

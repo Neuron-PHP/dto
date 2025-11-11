@@ -7,12 +7,12 @@ use Neuron\Dto\Dto;
 class Generic implements IMapper
 {
 	/**
-	 * @param Dto $Dto
-	 * @param array $Data
+	 * @param Dto $dto
+	 * @param array $data
 	 * @return Dto
 	 */
 
-	public function map( Dto $Dto, array $Data ): Dto
+	public function map( Dto $dto, array $data ): Dto
 	{
 	}
 }

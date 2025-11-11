@@ -14,7 +14,7 @@ use Neuron\Log\Log;
 
 class Dto extends Base
 {
-	private array $_Properties = [];
+	private array $properties = [];
 
 	/**
 	 * Dto constructor.
@@ -33,91 +33,91 @@ class Dto extends Base
 
 	public function getProperties(): array
 	{
-		return $this->_Properties;
+		return $this->properties;
 	}
 
 	/**
 	 * Magic method for accessing parameters via dto->parameter
 	 *
-	 * @param string $Name
+	 * @param string $name
 	 * @return mixed
 	 * @throws PropertyNotFound
 	 */
 
-	public function __get( string $Name ) : mixed
+	public function __get( string $name ) : mixed
 	{
-		$Parameter = $this->getProperty( $Name );
+		$parameter = $this->getProperty( $name );
 
-		if( !$Parameter )
+		if( !$parameter )
 		{
-			throw new Exceptions\PropertyNotFound( $Name );
+			throw new Exceptions\PropertyNotFound( $name );
 		}
 
-		if( $Parameter->getType() === 'array' )
+		if( $parameter->getType() === 'array' )
 		{
-			$ItemType = $Parameter->getValue()->getItemTemplate()->getType();
-			if( $ItemType !== 'array' && $ItemType !== 'object' )
+			$itemType = $parameter->getValue()->getItemTemplate()->getType();
+			if( $itemType !== 'array' && $itemType !== 'object' )
 			{
-				$Items = [];
-				foreach( $Parameter->getValue()->getChildren() as $Child )
+				$items = [];
+				foreach( $parameter->getValue()->getChildren() as $child )
 				{
-					$Items[] = $Child->getValue();
+					$items[] = $child->getValue();
 				}
-				return $Items;
+				return $items;
 			}
 
-			return $Parameter->getValue()->getChildren();
+			return $parameter->getValue()->getChildren();
 		}
 
-		return $Parameter->getValue();
+		return $parameter->getValue();
 	}
 
 	/**
 	 * Magic method for setting parameter values via dto->parameter = value.
 	 *
-	 * @param string $Name
-	 * @param mixed $Value
+	 * @param string $name
+	 * @param mixed $value
 	 * @return void
 	 * @throws Validation
 	 * @throws PropertyNotFound
 	 */
 
-	public function __set( string $Name, mixed $Value ) : void
+	public function __set( string $name, mixed $value ) : void
 	{
-		$Parameter = $this->getProperty( $Name );
+		$parameter = $this->getProperty( $name );
 
-		if( !$Parameter )
+		if( !$parameter )
 		{
-			throw new Exceptions\PropertyNotFound( $Name );
+			throw new Exceptions\PropertyNotFound( $name );
 		}
 
-		$Parameter->setValue( $Value );
-		$Parameter->validate();
+		$parameter->setValue( $value );
+		$parameter->validate();
 	}
 
 	/**
 	 * Gets a parameter by name.
 	 *
-	 * @param string $Name
+	 * @param string $name
 	 * @return Property|null
 	 */
 
-	public function getProperty( string $Name ): ?Property
+	public function getProperty( string $name ): ?Property
 	{
-		return $this->_Properties[ $Name ] ?? null;
+		return $this->properties[ $name ] ?? null;
 	}
 
 	/**
 	 * Sets a parameter by name.
 	 *
-	 * @param string $Name
-	 * @param Property $Parameter
+	 * @param string $name
+	 * @param Property $parameter
 	 * @return $this
 	 */
 
-	public function setProperty( string $Name, Property $Parameter ): Dto
+	public function setProperty( string $name, Property $parameter ): Dto
 	{
-		$this->_Properties[ $Name ] = $Parameter;
+		$this->properties[ $name ] = $parameter;
 
 		return $this;
 	}
@@ -131,92 +131,92 @@ class Dto extends Base
 
 	public function validate() : void
 	{
-		$Parameters = $this->getProperties();
+		$parameters = $this->getProperties();
 
-		foreach( $Parameters as $Property )
+		foreach( $parameters as $property )
 		{
-			$this->validateProperty( $Property );
+			$this->validateProperty( $property );
 		}
 
-		foreach( $this->getErrors() as $Error )
+		foreach( $this->getErrors() as $error )
 		{
-			Log::error( $Error );
+			Log::error( $error );
 		}
 	}
 
 	/**
-	 * @param mixed $Property
+	 * @param mixed $property
 	 * @return void
 	 * @throws Validation
 	 */
 
-	protected function validateProperty( mixed $Property ): void
+	protected function validateProperty( mixed $property ): void
 	{
-		if( $Property->getType() == 'object' )
+		if( $property->getType() == 'object' )
 		{
-			$this->validateDto( $Property->getValue() );
+			$this->validateDto( $property->getValue() );
 		}
-		elseif( $Property->getType() == 'array' )
+		elseif( $property->getType() == 'array' )
 		{
-			$this->validateArray( $Property );
+			$this->validateArray( $property );
 		}
 		else
 		{
-			$this->validateScalar( $Property );
+			$this->validateScalar( $property );
 		}
 	}
 
 	/**
-	 * @param Dto $Dto
+	 * @param Dto $dto
 	 * @return void
 	 * @throws Validation
 	 */
 
-	protected function validateDto( Dto $Dto ): void
+	protected function validateDto( Dto $dto ): void
 	{
-		$Dto->validate();
-		$this->addErrors( $Dto->getErrors() );
+		$dto->validate();
+		$this->addErrors( $dto->getErrors() );
 	}
 
 	/**
-	 * @param Property $Property
+	 * @param Property $property
 	 * @return void
 	 * @throws Validation
 	 */
 
-	protected function validateArray( Property $Property ): void
+	protected function validateArray( Property $property ): void
 	{
 		try
 		{
-			$Property->validate();
+			$property->validate();
 		}
-		catch( Exceptions\Validation $Exception )
+		catch( Exceptions\Validation $exception )
 		{
-			$this->addErrors( $Exception->errors );
+			$this->addErrors( $exception->errors );
 		}
 
-		$this->addErrors( $Property->getValue()->getErrors() );
+		$this->addErrors( $property->getValue()->getErrors() );
 
-		foreach( $Property->getValue()->getChildren() as $Item )
+		foreach( $property->getValue()->getChildren() as $item )
 		{
-			$this->validateScalar( $Item );
+			$this->validateScalar( $item );
 		}
 	}
 
 	/**
-	 * @param mixed $Property
+	 * @param mixed $property
 	 * @return void
 	 */
 
-	protected function validateScalar( mixed $Property ): void
+	protected function validateScalar( mixed $property ): void
 	{
 		try
 		{
-			$Property->validate();
+			$property->validate();
 		}
-		catch( Exceptions\Validation $Exception )
+		catch( Exceptions\Validation $exception )
 		{
-			$this->addErrors( $Exception->errors );
+			$this->addErrors( $exception->errors );
 		}
 	}
 
@@ -226,21 +226,21 @@ class Dto extends Base
 
 	public function getAsJson(): string
 	{
-		$Result = '{';
+		$result = '{';
 
-		foreach( $this->getProperties() as $Property )
+		foreach( $this->getProperties() as $property )
 		{
-			$Json = $Property->getAsJson();
+			$json = $property->getAsJson();
 
-			if( $Json )
+			if( $json )
 			{
-				$Result .= $Json . ',';
+				$result .= $json . ',';
 			}
 		}
 
-		$Result = substr($Result, 0, -1);
+		$result = substr($result, 0, -1);
 
-		return $Result.'}';
+		return $result.'}';
 	}
 
 	/**

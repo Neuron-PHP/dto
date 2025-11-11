@@ -9,14 +9,14 @@ use Neuron\Dto\Compound\ICompound;
 
 class Property
 {
-	private ICompound $_Parent;
-	private array	$_Errors;
-	private string	$_Name;
-	private bool	$_Required;
-	private string	$_Type;
-	private mixed	$_Value = null;
-	private array	$_TypeValidators;
-	private Validation\Collection $_Validators;
+	private ICompound $parent;
+	private array	$errors;
+	private string	$name;
+	private bool	$required;
+	private string	$type;
+	private mixed	$value = null;
+	private array	$typeValidators;
+	private Validation\Collection $validators;
 
 	/**
 	 *
@@ -24,12 +24,12 @@ class Property
 
 	public function __construct()
 	{
-		$this->_Errors		= [];
-		$this->_Name		= '';
-		$this->_Required	= false;
-		$this->_Type		= '';
+		$this->errors		= [];
+		$this->name		= '';
+		$this->required	= false;
+		$this->type		= '';
 
-		$this->_TypeValidators = [
+		$this->typeValidators = [
 			'array'					=> new Validation\IsObject(),
 			'boolean'				=> new Validation\IsBoolean(),
 			'currency'				=> new Validation\IsCurrency(),
@@ -52,17 +52,17 @@ class Property
 			'intl_phone_number'	=> new Validation\IsPhoneNumber( Validation\IsPhoneNumber::INTERNATIONAL )
 		];
 
-		$this->_Validators = new Validation\Collection();
+		$this->validators = new Validation\Collection();
 	}
 
 	public function getParent(): ICompound
 	{
-		return $this->_Parent;
+		return $this->parent;
 	}
 
-	public function setParent( ICompound $Parent ): Property
+	public function setParent( ICompound $parent ): Property
 	{
-		$this->_Parent = $Parent;
+		$this->parent = $parent;
 		return $this;
 	}
 
@@ -72,17 +72,17 @@ class Property
 
 	public function getName(): string
 	{
-		return $this->_Name;
+		return $this->name;
 	}
 
 	/**
-	 * @param string $Name
+	 * @param string $name
 	 * @return Property
 	 */
 
-	public function setName( string $Name ): Property
+	public function setName( string $name ): Property
 	{
-		$this->_Name = $Name;
+		$this->name = $name;
 		return $this;
 	}
 
@@ -92,17 +92,17 @@ class Property
 
 	public function isRequired(): bool
 	{
-		return $this->_Required;
+		return $this->required;
 	}
 
 	/**
-	 * @param bool $Required
+	 * @param bool $required
 	 * @return Property
 	 */
 
-	public function setRequired( bool $Required ): Property
+	public function setRequired( bool $required ): Property
 	{
-		$this->_Required = $Required;
+		$this->required = $required;
 		return $this;
 	}
 
@@ -112,77 +112,77 @@ class Property
 
 	public function getType(): string
 	{
-		return $this->_Type;
+		return $this->type;
 	}
 
 	/**
-	 * @param string $Type
+	 * @param string $type
 	 * @return Property
 	 * @throws Exception
 	 */
 
-	public function setType( string $Type ): Property
+	public function setType( string $type ): Property
 	{
-		$this->_Type = $Type;
+		$this->type = $type;
 
-		if( !array_key_exists( $this->getType(), $this->_TypeValidators ) )
+		if( !array_key_exists( $this->getType(), $this->typeValidators ) )
 		{
-			throw new Exception($this->getName().": Invalid type '{$Type}." );
+			throw new Exception($this->getName().": Invalid type '{$type}." );
 		}
 
-		$this->_Validators->remove( 'type' );
+		$this->validators->remove( 'type' );
 
-		$this->_Validators->add( 'type', $this->_TypeValidators[ $Type ] );
-
-		return $this;
-	}
-
-	/**
-	 * @param int $Min
-	 * @param int $Max
-	 * @return $this
-	 */
-
-	public function setLengthRange( int $Min, int $Max ): Property
-	{
-		$this->_Validators->remove( 'length' );
-
-		$this->_Validators->add( 'length', new Validation\IsStringLength( $Min, $Max ) );
+		$this->validators->add( 'type', $this->typeValidators[ $type ] );
 
 		return $this;
 	}
 
 	/**
-	 * @param mixed $Min
-	 * @param mixed $Max
+	 * @param int $min
+	 * @param int $max
 	 * @return $this
 	 */
 
-	public function setValueRange( mixed $Min, mixed $Max ): Property
+	public function setLengthRange( int $min, int $max ): Property
 	{
-		$this->_Validators->remove( 'range' );
+		$this->validators->remove( 'length' );
 
-		$Range = new NumericRange( $Min, $Max );
-		$Validator = new Validation\IsNumberWithinRange( $Range);
+		$this->validators->add( 'length', new Validation\IsStringLength( $min, $max ) );
 
-		$this->_Validators->add(
+		return $this;
+	}
+
+	/**
+	 * @param mixed $min
+	 * @param mixed $max
+	 * @return $this
+	 */
+
+	public function setValueRange( mixed $min, mixed $max ): Property
+	{
+		$this->validators->remove( 'range' );
+
+		$range = new NumericRange( $min, $max );
+		$validator = new Validation\IsNumberWithinRange( $range);
+
+		$this->validators->add(
 			'range',
-			$Validator
+			$validator
 		);
 
 		return $this;
 	}
 
 	/**
-	 * @param string $Pattern
+	 * @param string $pattern
 	 * @return Property
 	 */
 
-	public function setPattern( string $Pattern ): Property
+	public function setPattern( string $pattern ): Property
 	{
-		$this->_Validators->remove( 'pattern' );
+		$this->validators->remove( 'pattern' );
 
-		$this->_Validators->add( 'pattern', new Validation\IsRegExPattern( $Pattern ) );
+		$this->validators->add( 'pattern', new Validation\IsRegExPattern( $pattern ) );
 
 		return $this;
 	}
@@ -193,17 +193,17 @@ class Property
 
 	public function getValue(): mixed
 	{
-		return $this->_Value;
+		return $this->value;
 	}
 
 	/**
-	 * @param mixed $Value
+	 * @param mixed $value
 	 * @return Property
 	 */
 
-	public function setValue( mixed $Value ): Property
+	public function setValue( mixed $value ): Property
 	{
-		$this->_Value = $Value;
+		$this->value = $value;
 
 		return $this;
 	}
@@ -214,25 +214,25 @@ class Property
 
 	public function validate(): void
 	{
-		if( $this->validateRequired() && $this->_Value )
+		if( $this->validateRequired() && $this->value )
 		{
-			$this->_Validators->isValid( $this->_Value );
+			$this->validators->isValid( $this->value );
 		}
 
-		$Violations = $this->_Validators->getViolations();
+		$violations = $this->validators->getViolations();
 
-		if( count( $Violations ) )
+		if( count( $violations ) )
 		{
-			foreach( $Violations as $Error )
+			foreach( $violations as $error )
 			{
-				$Message = "{$this->getName()}: $Error validation failed.";
-				$this->_Errors[] = $Message;
+				$message = "{$this->getName()}: $error validation failed.";
+				$this->errors[] = $message;
 			}
 		}
 
-		if( count( $this->_Errors ) )
+		if( count( $this->errors ) )
 		{
-			throw new Exceptions\Validation( $this->_Name, $this->_Errors );
+			throw new Exceptions\Validation( $this->name, $this->errors );
 		}
 	}
 
@@ -242,17 +242,17 @@ class Property
 
 	private function validateRequired(): bool
 	{
-		if( $this->_Required )
+		if( $this->required )
 		{
 			if( $this->getType() == 'array' && !count( $this->getValue()->getChildren() ) )
 			{
-				$this->_Errors[] = $this->_Name . ": array item is required.";
+				$this->errors[] = $this->name . ": array item is required.";
 				return false;
 			}
 
-			if( !$this->_Value )
+			if( !$this->value )
 			{
-				$this->_Errors[] = $this->_Name.": value is required.";
+				$this->errors[] = $this->name.": value is required.";
 				return false;
 			}
 		}
@@ -287,9 +287,9 @@ class Property
 
 	protected function getArrayAsJson(): string
 	{
-		/** @var Collection $Collection */
-		$Collection = $this->getValue();
-		return "\"{$this->getName()}\":{$Collection->getAsJson()}";
+		/** @var Collection $collection */
+		$collection = $this->getValue();
+		return "\"{$this->getName()}\":{$collection->getAsJson()}";
 	}
 
 	/**
@@ -298,10 +298,10 @@ class Property
 
 	protected function getDtoAsJson(): string
 	{
-		/** @var Dto $Dto */
-		$Dto = $this->getValue();
-		$Json = $Dto->getAsJson();
+		/** @var Dto $dto */
+		$dto = $this->getValue();
+		$json = $dto->getAsJson();
 
-		return "\"{$this->getName()}\":{$Json}";
+		return "\"{$this->getName()}\":{$json}";
 	}
 }

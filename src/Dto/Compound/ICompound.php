@@ -19,11 +19,11 @@ interface ICompound
 	public function getName(): string;
 
 	/**
-	 * @param string $Name
+	 * @param string $name
 	 * @return $this
 	 */
 
-	public function setName( string $Name ): ICompound;
+	public function setName( string $name ): ICompound;
 
 	/**
 	 * @return ICompound|null
@@ -32,20 +32,20 @@ interface ICompound
 	public function getParent(): ?ICompound;
 
 	/**
-	 * @param Dto|null $Parent
+	 * @param Dto|null $parent
 	 * @return ICompound
 	 */
 
-	public function setParent( ?Dto $Parent ): ICompound;
+	public function setParent( ?Dto $parent ): ICompound;
 
 	/**
 	 * Adds a validation error to the list.
 	 *
-	 * @param array $Errors
+	 * @param array $errors
 	 * @return ICompound
 	 */
 
-	public function addErrors( array $Errors ): ICompound;
+	public function addErrors( array $errors ): ICompound;
 
 	/**
 	 * Returns a list of validation errors for all parameter values.

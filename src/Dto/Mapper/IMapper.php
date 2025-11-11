@@ -11,11 +11,11 @@ interface IMapper
 	/**
 	 * Assign data to a dto
 	 *
-	 * @param Dto $Dto
-	 * @param array $Data
+	 * @param Dto $dto
+	 * @param array $data
 	 * @return Dto
 	 * @throws Validation|MapNotFound
 	 */
 
-	public function map( Dto $Dto, array $Data ): Dto;
+	public function map( Dto $dto, array $data ): Dto;
 }

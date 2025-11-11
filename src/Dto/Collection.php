@@ -8,9 +8,9 @@ use Neuron\Dto\Compound\ICompound;
 
 class Collection extends Base
 {
-	private ?NumericRange $_ValidRange = null;
-	private array		$_Children = [];
-	private Property	$_ItemTemplate;
+	private ?NumericRange $validRange = null;
+	private array		$children = [];
+	private Property	$itemTemplate;
 
 	/**
 	 * @return Property
@@ -18,38 +18,38 @@ class Collection extends Base
 
 	public function getItemTemplate(): Property
 	{
-		return $this->_ItemTemplate;
+		return $this->itemTemplate;
 	}
 
 	/**
-	 * @param Property $ItemTemplate
+	 * @param Property $itemTemplate
 	 * @return Collection
 	 */
 
-	public function setItemTemplate( Property $ItemTemplate ): Collection
+	public function setItemTemplate( Property $itemTemplate ): Collection
 	{
-		$this->_ItemTemplate = $ItemTemplate;
+		$this->itemTemplate = $itemTemplate;
 
 		return $this;
 	}
 
 	/**
-	 * @param ICompound|Property $Child
+	 * @param ICompound|Property $child
 	 * @return Collection
 	 */
 
-	public function addChild( ICompound|Property $Child ) : Base
+	public function addChild( ICompound|Property $child ) : Base
 	{
-		if( $this->_ValidRange !== null )
+		if( $this->validRange !== null )
 		{
-			if( count( $this->_Children ) >= $this->_ValidRange->Maximum )
+			if( count( $this->children ) >= $this->validRange->Maximum )
 			{
-				$Message = "Items for {$this->getName()} would exceed the maximum range of {$this->_ValidRange->Maximum}";
-				$this->addErrors( [ $Message ] );
+				$message = "Items for {$this->getName()} would exceed the maximum range of {$this->validRange->Maximum}";
+				$this->addErrors( [ $message ] );
 			}
 		}
 
-		$this->_Children[] = $Child;
+		$this->children[] = $child;
 
 		return $this;
 	}
@@ -61,29 +61,29 @@ class Collection extends Base
 
 	public function getChildren() : array
 	{
-		return $this->_Children;
+		return $this->children;
 	}
 
 	/**
-	 * @param int $Offset
+	 * @param int $offset
 	 * @return null | ICompound | Property
 	 * @throws \Exception
 	 */
 
-	public function getChild( int $Offset ) : null | ICompound | Property
+	public function getChild( int $offset ) : null | ICompound | Property
 	{
-		return $this->_Children[ $Offset ] ?? null;
+		return $this->children[ $offset ] ?? null;
 	}
 
 	/**
-	 * @param int $Min
-	 * @param int $Max
+	 * @param int $min
+	 * @param int $max
 	 * @return $this
 	 */
 
-	public function setRange( int $Min, int $Max ) : Collection
+	public function setRange( int $min, int $max ) : Collection
 	{
-		$this->_ValidRange = new NumericRange( $Min, $Max );
+		$this->validRange = new NumericRange( $min, $max );
 
 		return $this;
 	}
@@ -95,28 +95,28 @@ class Collection extends Base
 
 	public function getAsJson() : string
 	{
-		$Result = '[';
+		$result = '[';
 
-		foreach( $this->getChildren() as $Property )
+		foreach( $this->getChildren() as $property )
 		{
 			if( $this->getItemTemplate()->getType() == 'object' )
 			{
-				$Json = $Property->getAsJson();
+				$json = $property->getAsJson();
 
-				if( $Json )
+				if( $json )
 				{
-					$Result .= $Json . ',';
+					$result .= $json . ',';
 				}
 			}
 			else
 			{
-				$Result .= "\"{$Property->getValue()}\",";
+				$result .= "\"{$property->getValue()}\",";
 			}
 		}
 
-		if( strlen( $Result ) > 1 )
-			$Result = substr($Result, 0, -1);
+		if( strlen( $result ) > 1 )
+			$result = substr($result, 0, -1);
 
-		return $Result.']';
+		return $result.']';
 	}
 }
