@@ -195,11 +195,18 @@ class Dto extends Base
 			$this->addErrors( $exception->errors );
 		}
 
-		$this->addErrors( $property->getValue()->getErrors() );
+		$value = $property->getValue();
 
-		foreach( $property->getValue()->getChildren() as $item )
+		// Only validate Collection items (typed arrays)
+		// Untyped arrays (raw PHP arrays) are validated by the property validator
+		if( $value instanceof Collection )
 		{
-			$this->validateScalar( $item );
+			$this->addErrors( $value->getErrors() );
+
+			foreach( $value->getChildren() as $item )
+			{
+				$this->validateScalar( $item );
+			}
 		}
 	}
 
