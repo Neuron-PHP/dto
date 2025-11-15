@@ -244,13 +244,35 @@ class Property
 	{
 		if( $this->required )
 		{
-			if( $this->getType() == 'array' && !count( $this->getValue()->getChildren() ) )
+			if( $this->getType() == 'array' )
 			{
-				$this->errors[] = $this->name . ": array item is required.";
-				return false;
-			}
+				$value = $this->getValue();
 
-			if( !$this->value )
+				// Check if it's a typed array (Collection) or untyped array (raw array)
+				if( $value instanceof Collection )
+				{
+					if( !count( $value->getChildren() ) )
+					{
+						$this->errors[] = $this->name . ": array item is required.";
+						return false;
+					}
+				}
+				elseif( is_array( $value ) )
+				{
+					if( empty( $value ) )
+					{
+						$this->errors[] = $this->name . ": array item is required.";
+						return false;
+					}
+				}
+				else
+				{
+					// Null or other - treat as empty
+					$this->errors[] = $this->name . ": array item is required.";
+					return false;
+				}
+			}
+			elseif( !$this->value )
 			{
 				$this->errors[] = $this->name.": value is required.";
 				return false;
