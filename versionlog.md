@@ -1,4 +1,4 @@
-## 0.0.4
+## 0.0.4 2025-11-15
 * Updated factory so that it can create DTOs from arrays.
 
 ## 0.0.3 2025-11-15
