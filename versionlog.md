@@ -1,4 +1,4 @@
-## 0.0.3
+## 0.0.3 2025-11-15
 
 ## 0.0.2 2025-11-11
 * Completed implementation of support for multidimensional.
