@@ -35,21 +35,21 @@ class Property
 			'currency'				=> new Validation\IsCurrency(),
 			'date'					=> new Validation\IsDate(),
 			'date_time'				=> new Validation\IsDateTime(),
-			'ein'						=> new Validation\IsEin(),
+			'ein'					=> new Validation\IsEin(),
 			'email'					=> new Validation\IsEmail(),
 			'float'					=> new Validation\IsFloatingPoint(),
 			'integer'				=> new Validation\IsInteger(),
 			'ip_address'			=> new Validation\IsIpAddress(),
 			'name'					=> new Validation\IsName(),
 			'numeric'				=> new Validation\IsNumeric(),
-			'object'					=> new Validation\IsObject(),
-			'string'					=> new Validation\IsString(),
+			'object'				=> new Validation\IsObject(),
+			'string'				=> new Validation\IsString(),
 			'time'					=> new Validation\IsTime(),
-			'upc'						=> new Validation\IsUpc(),
-			'url'						=> new Validation\IsUrl(),
+			'upc'					=> new Validation\IsUpc(),
+			'url'					=> new Validation\IsUrl(),
 			'uuid'					=> new Validation\IsUuid(),
 			'us_phone_number'		=> new Validation\IsPhoneNumber(),
-			'intl_phone_number'	=> new Validation\IsPhoneNumber( Validation\IsPhoneNumber::INTERNATIONAL )
+			'intl_phone_number'		=> new Validation\IsPhoneNumber( Validation\IsPhoneNumber::INTERNATIONAL )
 		];
 
 		$this->validators = new Validation\Collection();

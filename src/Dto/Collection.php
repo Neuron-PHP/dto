@@ -42,9 +42,9 @@ class Collection extends Base
 	{
 		if( $this->validRange !== null )
 		{
-			if( count( $this->children ) >= $this->validRange->Maximum )
+			if( count( $this->children ) >= $this->validRange->maximum )
 			{
-				$message = "Items for {$this->getName()} would exceed the maximum range of {$this->validRange->Maximum}";
+				$message = "Items for {$this->getName()} would exceed the maximum range of {$this->validRange->maximum}";
 				$this->addErrors( [ $message ] );
 			}
 		}

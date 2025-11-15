@@ -193,7 +193,7 @@ dto:
 use Neuron\Dto\Factory;
 
 // Load from file
-$factory = new Factory('path/to/config.yaml');
+$factory = new Factory('path/to/neuron.yaml');
 $dto = $factory->create();
 
 // Set properties
@@ -250,11 +250,14 @@ The DTO component includes comprehensive validation for each property type:
 
 ```php
 // Validate entire DTO
-if (!$dto->validate()) {
+if( !$dto->validate() ) 
+{
     $errors = $dto->getErrors();
-    foreach ($errors as $property => $propertyErrors) {
+    foreach( $errors as $property => $propertyErrors ) 
+    {
         echo "Property '$property' has errors:\n";
-        foreach ($propertyErrors as $error) {
+        foreach( $propertyErrors as $error ) 
+        {
             echo "  - $error\n";
         }
     }
@@ -809,7 +812,8 @@ dto:
 
 ```php
 // Always validate before processing
-if (!$dto->validate()) {
+if( !$dto->validate() ) 
+{
     // Log errors
     Log::error('DTO validation failed', $dto->getErrors());
 
@@ -824,24 +828,30 @@ $result = $service->process($dto);
 ### Error Handling
 
 ```php
-try {
+try 
+{
     $dto->username = $input['username'];
     $dto->email = $input['email'];
 
-    if (!$dto->validate()) {
+    if( !$dto->validate() ) 
+    {
         throw new ValidationException($dto->getErrors());
     }
 
     $user = $userService->create($dto);
 
-} catch (ValidationException $e) {
+} 
+catch( ValidationException $e ) 
+{
     // Handle validation errors
     return response()->json([
         'error' => 'Validation failed',
         'details' => $e->getErrors()
     ], 422);
 
-} catch (PropertyNotFound $e) {
+} 
+catch (PropertyNotFound $e) 
+{
     // Handle missing property
     return response()->json([
         'error' => 'Invalid property: ' . $e->getMessage()
@@ -906,7 +916,8 @@ class LazyDto extends Dto
 
     public function __get(string $name)
     {
-        if (isset($this->lazyProperties[$name])) {
+        if( isset( $this->lazyProperties[ $name ] ) ) 
+        {
             // Load only when accessed
             $this->loadProperty($name);
         }
@@ -934,7 +945,8 @@ class ApiController
         $mapper->map($dto, $request->all());
 
         // Validate
-        if (!$dto->validate()) {
+        if( !$dto->validate() ) 
+        {
             return response()->json([
                 'errors' => $dto->getErrors()
             ], 422);
