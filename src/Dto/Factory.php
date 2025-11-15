@@ -7,33 +7,33 @@ use Neuron\Dto\Compound\ICompound;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Factory class for creating Data Transfer Objects (DTOs) from YAML configuration files.
- * 
- * This factory reads YAML files containing DTO definitions and creates corresponding
- * Dto objects with properties, validation rules, and nested structures.
- * 
+ * Factory class for creating Data Transfer Objects (DTOs) from YAML configuration files or arrays.
+ *
+ * This factory can read YAML files containing DTO definitions OR accept arrays with DTO definitions,
+ * and creates corresponding Dto objects with properties, validation rules, and nested structures.
+ *
  * @package Neuron\Dto
  */
 class Factory
 {
-	private string $fileName;
+	private string|array $source;
 
 	/**
-	 * @param string $fileName
+	 * @param string|array $source YAML file path or array of DTO properties
 	 */
 
-	public function __construct( string $fileName )
+	public function __construct( string|array $source )
 	{
-		$this->fileName = $fileName;
+		$this->source = $source;
 	}
 
 	/**
-	 * @return string
+	 * @return string|array
 	 */
 
-	public function getFileName(): string
+	public function getSource(): string|array
 	{
-		return $this->fileName;
+		return $this->source;
 	}
 
 	/**
@@ -42,10 +42,31 @@ class Factory
 
 	public function create(): Dto
 	{
-		$name = pathinfo( $this->fileName )[ 'filename' ];
-		$data = Yaml::parseFile( $this->fileName );
-
-		return $this->createDto( $name, $data[ 'dto' ] );
+		if( is_string( $this->source ) )
+		{
+			// Load from YAML file
+			$name = pathinfo( $this->source )[ 'filename' ];
+			$data = Yaml::parseFile( $this->source );
+			return $this->createDto( $name, $data[ 'dto' ] );
+		}
+		else
+		{
+			// Load from array
+			// Only check for 'name' if using structured format with 'properties' key
+			// This prevents conflict with 'name' as an actual property
+			if( isset( $this->source[ 'properties' ] ) )
+			{
+				$name = $this->source[ 'name' ] ?? 'InlineDto';
+				$properties = $this->source[ 'properties' ];
+			}
+			else
+			{
+				// Flat format - entire array is properties
+				$name = 'InlineDto';
+				$properties = $this->source;
+			}
+			return $this->createDto( $name, $properties );
+		}
 	}
 
 	/**

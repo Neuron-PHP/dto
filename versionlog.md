@@ -1,9 +1,11 @@
 ## 0.0.4
+* Updated factory so that it can create DTOs from arrays.
 
 ## 0.0.3 2025-11-15
+* Upgraded validators.
 
 ## 0.0.2 2025-11-11
-* Completed implementation of support for multidimensional.
+* Completed implementation of support for multidimensional arrays.
 * Added support for scalar array items.
 
 ## 0.0.1 2025-01-23
