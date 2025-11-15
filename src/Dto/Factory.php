@@ -139,15 +139,20 @@ class Factory
 
 		if( $property->getType() === 'array' )
 		{
-			$paramDto = $this->createArray( $name, $propertyData[ 'items' ] );
-			if( isset( $propertyData[ 'max' ] ) )
+			// Only create collection with item template if items are specified
+			if( isset( $propertyData[ 'items' ] ) )
 			{
-				$max = $propertyData[ 'max' ];
-				$paramDto->setRange( 0, $max );
-			}
+				$paramDto = $this->createArray( $name, $propertyData[ 'items' ] );
+				if( isset( $propertyData[ 'max' ] ) )
+				{
+					$max = $propertyData[ 'max' ];
+					$paramDto->setRange( 0, $max );
+				}
 
-			$paramDto->setParent( $parent );
-			$property->setValue( $paramDto );
+				$paramDto->setParent( $parent );
+				$property->setValue( $paramDto );
+			}
+			// Otherwise, it's an untyped array - just set the type
 		}
 
 		if( isset( $propertyData[ 'length' ] ) )
