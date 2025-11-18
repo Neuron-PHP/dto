@@ -31,6 +31,7 @@ class Property
 
 		$this->typeValidators = [
 			'array'					=> new Validation\IsObject(),
+			'base64'				=> new Validation\IsBase64(),
 			'boolean'				=> new Validation\IsBoolean(),
 			'currency'				=> new Validation\IsCurrency(),
 			'date'					=> new Validation\IsDate(),
