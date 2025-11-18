@@ -1,7 +1,8 @@
+## 0.0.8 2025-11-18
+* Added support for base64 data validation.
+
 ## 0.0.7 2025-11-15
-
 ## 0.0.6 2025-11-15
-
 ## 0.0.5 2025-11-15
 * Fix for arrays.
 
