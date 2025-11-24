@@ -1,4 +1,4 @@
-## 0.0.9
+## 0.0.9 2025-11-24
 
 ## 0.0.8 2025-11-18
 * Added support for base64 data validation.
