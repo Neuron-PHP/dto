@@ -13,7 +13,7 @@
     "php": "^8.4",
     "symfony/yaml": "^6.4",
     "neuron-php/validation": "^0.7.0",
-    "neuron-php/logging": "0.8.*",
+    "neuron-php/logging": "0.9.*",
     "myclabs/deep-copy": "^1.12"
   },
   "require-dev": {
