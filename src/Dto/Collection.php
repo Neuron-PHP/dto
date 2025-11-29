@@ -2,7 +2,7 @@
 
 namespace Neuron\Dto;
 
-use Neuron\Data\Object\NumericRange;
+use Neuron\Data\Objects\NumericRange;
 use Neuron\Dto\Compound\Base;
 use Neuron\Dto\Compound\ICompound;
 
