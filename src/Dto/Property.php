@@ -4,7 +4,7 @@ namespace Neuron\Dto;
 use Exception;
 use Neuron\Validation;
 use Neuron\Core\Exceptions;
-use Neuron\Data\Object\NumericRange;
+use Neuron\Data\Objects\NumericRange;
 use Neuron\Dto\Compound\ICompound;
 
 class Property
