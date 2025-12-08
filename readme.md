@@ -1,5 +1,5 @@
 [![CI](https://github.com/Neuron-PHP/dto/actions/workflows/ci.yml/badge.svg)](https://github.com/Neuron-PHP/dto/actions)
-[![codecov](https://codecov.io/gh/Neuron-PHP/dto/graph/badge.svg)](https://codecov.io/gh/Neuron-PHP/dto)
+[![codecov](https://codecov.io/gh/Neuron-PHP/dto/branch/develop/graph/badge.svg)](https://codecov.io/gh/Neuron-PHP/dto)
 
 # Neuron-PHP DTO
 
