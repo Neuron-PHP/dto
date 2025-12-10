@@ -14,5 +14,6 @@ class Generic implements IMapper
 
 	public function map( Dto $dto, array $data ): Dto
 	{
+		return $dto;
 	}
 }

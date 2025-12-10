@@ -147,4 +147,72 @@ class DtoFactoryTest extends TestCase
 			$AddressDto->getProperties()
 		);
 	}
+
+	public function testGetSourceFromYamlFile()
+	{
+		$Factory = new Factory( 'examples/test.yaml' );
+
+		$source = $Factory->getSource();
+
+		$this->assertIsString( $source );
+		$this->assertEquals( 'examples/test.yaml', $source );
+	}
+
+	public function testGetSourceFromArray()
+	{
+		$Properties = [
+			'username' => [
+				'type'     => 'string',
+				'required' => true
+			]
+		];
+
+		$Factory = new Factory( $Properties );
+
+		$source = $Factory->getSource();
+
+		$this->assertIsArray( $source );
+		$this->assertEquals( $Properties, $source );
+	}
+
+	public function testCreateFromStructuredArrayWithName()
+	{
+		// Structured format with 'name' and 'properties' keys
+		$StructuredArray = [
+			'name'       => 'UserDto',
+			'properties' => [
+				'username' => [
+					'type'     => 'string',
+					'required' => true
+				],
+				'email'    => [
+					'type'     => 'email',
+					'required' => true
+				]
+			]
+		];
+
+		$Factory = new Factory( $StructuredArray );
+
+		$Dto = $Factory->create();
+
+		$this->assertIsObject( $Dto );
+
+		// Verify properties were created from 'properties' key
+		$this->assertArrayHasKey(
+			'username',
+			$Dto->getProperties()
+		);
+
+		$this->assertArrayHasKey(
+			'email',
+			$Dto->getProperties()
+		);
+
+		// Verify 'name' was not treated as a property
+		$this->assertArrayNotHasKey(
+			'name',
+			$Dto->getProperties()
+		);
+	}
 }
