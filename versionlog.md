@@ -1,4 +1,5 @@
 ## 0.0.12
+* Dtos can now be built referencing other dtos.
 
 ## 0.0.11 2025-12-19
 * Added RequestMapper.

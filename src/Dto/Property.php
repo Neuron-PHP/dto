@@ -36,6 +36,7 @@ class Property
 			'currency'				=> new Validation\IsCurrency(),
 			'date'					=> new Validation\IsDate(),
 			'date_time'				=> new Validation\IsDateTime(),
+			'dto'					=> new Validation\IsObject(),
 			'ein'					=> new Validation\IsEin(),
 			'email'					=> new Validation\IsEmail(),
 			'float'					=> new Validation\IsFloatingPoint(),
@@ -295,7 +296,7 @@ class Property
 			return $this->getArrayAsJson();
 		}
 
-		if( $this->getType() == 'object' )
+		if( $this->getType() == 'object' || $this->getType() == 'dto' )
 		{
 			return $this->getDtoAsJson();
 		}
