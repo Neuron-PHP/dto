@@ -1,0 +1,29 @@
+dto:
+  id:
+    type: uuid
+    required: true
+
+  title:
+    type: string
+    required: true
+    length:
+      min: 3
+      max: 100
+
+  # Reference to reusable timestamps DTO
+  timestamps:
+    type: dto
+    ref: 'common/timestamps.yaml'
+    required: true
+
+  # Reference to reusable user DTO
+  author:
+    type: dto
+    ref: 'common/user.yaml'
+    required: true
+
+  # Reference to reusable address DTO
+  shippingAddress:
+    type: dto
+    ref: 'common/address.yaml'
+    required: false

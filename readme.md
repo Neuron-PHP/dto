@@ -89,6 +89,7 @@ echo $dto->getAsJson();
 - **Dynamic DTO Creation**: Generate DTOs from YAML configuration files
 - **Comprehensive Validation**: Built-in validators for 20+ data types
 - **Nested Structures**: Support for complex, hierarchical data models
+- **DTO Composition**: Reuse DTOs by referencing existing DTO definitions
 - **Data Mapping**: Transform external data structures to DTOs
 - **Type Safety**: Strict type checking and validation
 - **Collections**: Handle arrays of objects with validation
@@ -241,6 +242,163 @@ $dto->address->zipCode = '10001';
 // Accessing nested properties
 $street = $dto->address->street;
 $city = $dto->address->city;
+```
+
+### DTO Composition (Reusable DTOs)
+
+You can create reusable DTO definitions and reference them in other DTOs, making it easy to share common structures like timestamps, addresses, or user records across multiple DTOs.
+
+#### Creating Reusable DTOs
+
+First, create standalone DTO definition files:
+
+**common/timestamps.yaml**
+```yaml
+dto:
+  createdAt:
+    type: date_time
+    required: true
+  updatedAt:
+    type: date_time
+    required: false
+```
+
+**common/address.yaml**
+```yaml
+dto:
+  street:
+    type: string
+    required: true
+    length:
+      min: 3
+      max: 100
+  city:
+    type: string
+    required: true
+  state:
+    type: string
+    required: true
+    length:
+      min: 2
+      max: 2
+  zipCode:
+    type: string
+    required: true
+    pattern: '/^\d{5}(-\d{4})?$/'
+```
+
+**common/user.yaml**
+```yaml
+dto:
+  id:
+    type: uuid
+    required: true
+  username:
+    type: string
+    required: true
+    length:
+      min: 3
+      max: 20
+  email:
+    type: email
+    required: true
+  firstName:
+    type: string
+    required: true
+  lastName:
+    type: string
+    required: true
+```
+
+#### Using Referenced DTOs
+
+Reference these DTOs in your main DTO definition using `type: dto` with a `ref` parameter:
+
+```yaml
+dto:
+  id:
+    type: uuid
+    required: true
+
+  title:
+    type: string
+    required: true
+
+  # Reference to reusable timestamps DTO
+  timestamps:
+    type: dto
+    ref: 'common/timestamps.yaml'
+    required: true
+
+  # Reference to reusable user DTO
+  author:
+    type: dto
+    ref: 'common/user.yaml'
+    required: true
+
+  # Reference to reusable address DTO
+  shippingAddress:
+    type: dto
+    ref: 'common/address.yaml'
+    required: false
+```
+
+#### Working with Composed DTOs
+
+```php
+use Neuron\Dto\Factory;
+
+// Create DTO with referenced DTOs
+$factory = new Factory('article.yaml');
+$dto = $factory->create();
+
+// Set values on the main DTO
+$dto->id = '550e8400-e29b-41d4-a716-446655440000';
+$dto->title = 'My Article';
+
+// Set values on referenced DTOs
+$dto->timestamps->createdAt = '2024-01-01 10:00:00';
+$dto->timestamps->updatedAt = '2024-01-02 12:00:00';
+
+$dto->author->id = '550e8400-e29b-41d4-a716-446655440001';
+$dto->author->username = 'johndoe';
+$dto->author->email = 'john@example.com';
+$dto->author->firstName = 'John';
+$dto->author->lastName = 'Doe';
+
+$dto->shippingAddress->street = '123 Main St';
+$dto->shippingAddress->city = 'New York';
+$dto->shippingAddress->state = 'NY';
+$dto->shippingAddress->zipCode = '10001';
+
+// Validate entire structure including referenced DTOs
+$dto->validate();
+
+// Export to JSON
+echo $dto->getAsJson();
+```
+
+#### Benefits of DTO Composition
+
+- **Reusability**: Define common structures once, use them everywhere
+- **Consistency**: Ensure the same validation rules across all uses
+- **Maintainability**: Update the definition in one place
+- **Performance**: Referenced DTOs are cached automatically
+- **Type Safety**: Full validation support for nested structures
+
+#### Path Resolution
+
+Referenced paths are resolved relative to the parent DTO file:
+
+```yaml
+# If this file is at: project/dtos/article.yaml
+# And you reference: 'common/timestamps.yaml'
+# The system will look for: project/dtos/common/timestamps.yaml
+
+# You can also use absolute paths:
+timestamps:
+  type: dto
+  ref: '/absolute/path/to/timestamps.yaml'
 ```
 
 ## Validation
@@ -416,6 +574,7 @@ $mapper->map($dto, $sourceData);
 | `boolean` | True/false values | Type checking |
 | `array` | Lists of items | Item validation |
 | `object` | Nested objects | Property validation |
+| `dto` | Referenced DTO | Full DTO validation |
 | `email` | Email addresses | RFC compliance |
 | `url` | URLs | URL format |
 | `date` | Date values | Date format |

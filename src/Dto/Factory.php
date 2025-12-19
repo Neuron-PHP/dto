@@ -17,6 +17,7 @@ use Symfony\Component\Yaml\Yaml;
 class Factory
 {
 	private string|array $source;
+	private static array $dtoCache = [];
 
 	/**
 	 * @param string|array $source YAML file path or array of DTO properties
@@ -137,6 +138,20 @@ class Factory
 			$property->setValue( $paramDto );
 		}
 
+		if( $property->getType() === 'dto' )
+		{
+			// Load referenced DTO from file
+			if( !isset( $propertyData[ 'ref' ] ) )
+			{
+				throw new \Exception( "Property '{$name}' with type 'dto' requires a 'ref' parameter." );
+			}
+
+			$referencedDto = $this->loadReferencedDto( $propertyData[ 'ref' ] );
+			$referencedDto->setName( $name );
+			$referencedDto->setParent( $parent );
+			$property->setValue( $referencedDto );
+		}
+
 		if( $property->getType() === 'array' )
 		{
 			// Only create collection with item template if items are specified
@@ -171,6 +186,78 @@ class Factory
 		}
 
 		return $property;
+	}
+
+	/**
+	 * Load a referenced DTO from a file path, with caching
+	 *
+	 * @param string $ref The reference path to the DTO YAML file
+	 * @return Dto
+	 * @throws Exception
+	 */
+	protected function loadReferencedDto( string $ref ): Dto
+	{
+		// Resolve the path relative to the current source file if source is a file path
+		$resolvedPath = $this->resolveReferencePath( $ref );
+
+		// Check cache first
+		if( isset( self::$dtoCache[ $resolvedPath ] ) )
+		{
+			// Return a clone to prevent shared state between instances
+			return clone self::$dtoCache[ $resolvedPath ];
+		}
+
+		// Load and create the DTO
+		$factory = new Factory( $resolvedPath );
+		$dto = $factory->create();
+
+		// Cache the DTO
+		self::$dtoCache[ $resolvedPath ] = $dto;
+
+		// Return a clone
+		return clone $dto;
+	}
+
+	/**
+	 * Resolve a reference path relative to the current source
+	 *
+	 * @param string $ref
+	 * @return string
+	 */
+	protected function resolveReferencePath( string $ref ): string
+	{
+		// If source is a file path and ref is relative, resolve it relative to source
+		if( is_string( $this->source ) && !$this->isAbsolutePath( $ref ) )
+		{
+			$sourceDir = dirname( $this->source );
+			return $sourceDir . DIRECTORY_SEPARATOR . $ref;
+		}
+
+		// Otherwise, return as-is (could be absolute or source is array)
+		return $ref;
+	}
+
+	/**
+	 * Check if a path is absolute
+	 *
+	 * @param string $path
+	 * @return bool
+	 */
+	protected function isAbsolutePath( string $path ): bool
+	{
+		// Unix/Linux absolute path
+		if( str_starts_with( $path, '/' ) )
+		{
+			return true;
+		}
+
+		// Windows absolute path (C:\ or C:/)
+		if( preg_match( '/^[a-zA-Z]:[\/\\\\]/', $path ) )
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

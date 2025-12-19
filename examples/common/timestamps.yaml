@@ -1,0 +1,7 @@
+dto:
+  createdAt:
+    type: date_time
+    required: true
+  updatedAt:
+    type: date_time
+    required: false

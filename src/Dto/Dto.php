@@ -152,7 +152,7 @@ class Dto extends Base
 
 	protected function validateProperty( mixed $property ): void
 	{
-		if( $property->getType() == 'object' )
+		if( $property->getType() == 'object' || $property->getType() == 'dto' )
 		{
 			$this->validateDto( $property->getValue() );
 		}
