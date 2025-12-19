@@ -5,6 +5,7 @@ use Neuron\Core\Exceptions;
 use Neuron\Dto\Factory;
 use Neuron\Dto\Mapper;
 use Neuron\Dto\Mapper\Dynamic;
+use Neuron\Dto\Mapper\Generic;
 use PHPUnit\Framework\TestCase;
 
 class MapperTest extends TestCase
@@ -366,5 +367,16 @@ class MapperTest extends TestCase
 		$json = (string)$Dto;
 
 		$this->assertTrue( json_validate( $json ) );
+	}
+
+	public function testGenericMapper()
+	{
+		$Mapper = new Generic();
+		$Dto = $this->DtoFactory->create();
+
+		// Generic mapper has empty map() method - just verify it can be called without error
+		$Mapper->map( $Dto, [] );
+
+		$this->assertTrue( true, 'Generic mapper map() executed without error' );
 	}
 }
