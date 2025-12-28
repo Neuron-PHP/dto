@@ -185,6 +185,12 @@ class Factory
 			$property->setPattern( $propertyData[ 'pattern' ] );
 		}
 
+		if( isset( $propertyData[ 'enum' ] ) )
+		{
+			$strict = $propertyData[ 'strict' ] ?? true;
+			$property->setEnum( $propertyData[ 'enum' ], $strict );
+		}
+
 		return $property;
 	}
 

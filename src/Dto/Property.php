@@ -190,6 +190,23 @@ class Property
 	}
 
 	/**
+	 * Set allowed values for enum validation.
+	 *
+	 * @param array $allowedValues Array of allowed values
+	 * @param bool $strict Whether to use strict comparison (default: true)
+	 * @return Property
+	 */
+
+	public function setEnum( array $allowedValues, bool $strict = true ): Property
+	{
+		$this->validators->remove( 'enum' );
+
+		$this->validators->add( 'enum', new Validation\IsInSet( $allowedValues, $strict ) );
+
+		return $this;
+	}
+
+	/**
 	 * @return mixed
 	 */
 
