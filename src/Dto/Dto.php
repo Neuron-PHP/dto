@@ -125,12 +125,14 @@ class Dto extends Base
 	/**
 	 * Validates the values for all parameters.
 	 *
-	 * @return void
+	 * @return bool Returns true if validation passes, false otherwise
 	 * @throws Validation
 	 */
 
-	public function validate() : void
+	public function validate() : bool
 	{
+		$this->clearErrors();
+
 		$parameters = $this->getProperties();
 
 		foreach( $parameters as $property )
@@ -138,10 +140,14 @@ class Dto extends Base
 			$this->validateProperty( $property );
 		}
 
-		foreach( $this->getErrors() as $error )
+		$errors = $this->getErrors();
+
+		foreach( $errors as $error )
 		{
 			Log::error( $error );
 		}
+
+		return count( $errors ) === 0;
 	}
 
 	/**
