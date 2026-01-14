@@ -40,6 +40,7 @@ class Property
 			'ein'					=> new Validation\IsEin(),
 			'email'					=> new Validation\IsEmail(),
 			'float'					=> new Validation\IsFloatingPoint(),
+			'image'					=> new Validation\IsImage( [], null, true, false ), // SVG disabled by default for security
 			'integer'				=> new Validation\IsInteger(),
 			'ip_address'			=> new Validation\IsIpAddress(),
 			'name'					=> new Validation\IsName(),
