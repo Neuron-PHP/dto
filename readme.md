@@ -588,6 +588,8 @@ $mapper->map($dto, $sourceData);
 | `ein` | EIN numbers | US EIN format |
 | `upc` | UPC codes | UPC-A format |
 | `numeric` | Any number | Numeric validation |
+| `image` | Image data | Base64/data URI, MIME type |
+| `base64` | Base64 encoded data | Base64 format |
 
 ### Type Examples
 
@@ -637,6 +639,19 @@ dto:
   phone:
     type: phone_number
     format: international
+
+  # Image data (base64 or data URI)
+  profilePicture:
+    type: image
+    required: false
+    description: "User profile picture as base64 or data:image URI"
+
+  # Multiple images
+  gallery:
+    type: array
+    items:
+      type: image
+    description: "Array of base64 encoded images"
 ```
 
 ## Collections
@@ -703,6 +718,97 @@ dto:
 ```
 
 ## Advanced Usage
+
+### Working with Images
+
+The `image` type provides validation for base64-encoded image data and data URIs. It supports common image formats including JPEG, PNG, GIF, WebP, and SVG.
+
+#### Image Property Configuration
+
+```yaml
+dto:
+  # Simple image property
+  avatar:
+    type: image
+    required: false
+
+  # Image with data URI support
+  logo:
+    type: image
+    required: true
+    description: "Company logo as base64 or data:image/png;base64,..."
+```
+
+#### Using Image Properties in Code
+
+```php
+use Neuron\Dto\Factory;
+
+// Create DTO with image property
+$factory = new Factory([
+    'profile_pic' => [
+        'type' => 'image',
+        'required' => true
+    ]
+]);
+$dto = $factory->create();
+
+// Set image as base64
+$imageData = base64_encode(file_get_contents('photo.jpg'));
+$dto->profile_pic = $imageData;
+
+// Or use data URI format
+$dto->profile_pic = 'data:image/jpeg;base64,' . $imageData;
+
+// Validate
+$dto->validate();
+
+// Get JSON output (image remains as base64 string)
+$json = $dto->getAsJson();
+```
+
+#### Supported Image Formats
+
+The image validator automatically detects and validates the following formats:
+- **JPEG/JPG** - Detected by JPEG file signature
+- **PNG** - Detected by PNG file signature
+- **GIF** - Supports both GIF87a and GIF89a
+- **WebP** - Modern image format
+- **SVG** - XML-based vector graphics (disabled by default for security - see below)
+
+#### Image Validation Features
+
+- **Base64 Encoding**: Validates proper base64 encoding
+- **Data URI Support**: Accepts `data:image/type;base64,` format
+- **MIME Type Detection**: Automatically detects image type from file signatures
+- **Format Validation**: Ensures the data actually contains valid image content
+- **Size Constraints**: Can be configured with maximum file size limits (via custom validator)
+- **SVG Security**: SVG images are disabled by default as they can contain embedded scripts (XSS risk)
+
+#### Security Considerations for SVG
+
+SVG images are **disabled by default** because they are XML-based and can contain:
+- JavaScript code via `<script>` tags
+- Event handlers that execute JavaScript
+- External resource references
+- CSS that could be used for attacks
+
+If you need to accept SVG images, you must:
+1. Explicitly enable SVG support in your validator configuration
+2. Sanitize SVG content before storage or display
+3. Serve SVG files with appropriate Content Security Policy headers
+4. Consider using a dedicated SVG sanitization library
+
+To enable SVG support (use with caution):
+```php
+// Create a custom validator with SVG enabled
+$imageValidator = new \Neuron\Validation\IsImage(
+    [], // allowed MIME types (empty = all)
+    null, // max size
+    true, // check image data
+    true  // ALLOW SVG (security risk!)
+);
+```
 
 ### Complex DTO Example
 

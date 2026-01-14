@@ -1,0 +1,261 @@
+# Example YAML configuration for DTOs with image properties
+# This demonstrates how to define and configure image properties in DTOs
+
+dto:
+  # User profile DTO with various image fields
+  profile_picture:
+    type: image
+    required: true
+    description: "User's main profile picture - accepts base64 encoded image or data URI"
+
+  avatar_thumbnail:
+    type: image
+    required: false
+    description: "Small avatar image for quick display"
+
+  cover_photo:
+    type: image
+    required: false
+    description: "Large cover/banner image for profile page"
+
+  # Company/organization logo
+  company_logo:
+    type: image
+    required: false
+    description: "Company logo in base64 format"
+
+  # Product images for e-commerce
+  product_images:
+    type: array
+    required: false
+    items:
+      type: image
+    description: "Array of product images"
+
+  # Document with mixed content including images
+  document:
+    type: object
+    required: false
+    properties:
+      title:
+        type: string
+        required: true
+        length:
+          min: 1
+          max: 200
+
+      content:
+        type: string
+        required: true
+
+      featured_image:
+        type: image
+        required: false
+        description: "Featured image for the document"
+
+      inline_images:
+        type: array
+        required: false
+        items:
+          type: object
+          properties:
+            position:
+              type: integer
+              required: true
+            image_data:
+              type: image
+              required: true
+            caption:
+              type: string
+              required: false
+
+  # User verification documents
+  verification:
+    type: object
+    required: false
+    properties:
+      id_card_front:
+        type: image
+        required: true
+        description: "Front side of ID card"
+
+      id_card_back:
+        type: image
+        required: true
+        description: "Back side of ID card"
+
+      selfie:
+        type: image
+        required: true
+        description: "Selfie for identity verification"
+
+      proof_of_address:
+        type: image
+        required: false
+        description: "Document proving address"
+
+  # Gallery with metadata
+  gallery_item:
+    type: object
+    required: false
+    properties:
+      image:
+        type: image
+        required: true
+        description: "The actual image data"
+
+      title:
+        type: string
+        required: true
+        length:
+          min: 1
+          max: 100
+
+      description:
+        type: string
+        required: false
+        length:
+          max: 500
+
+      tags:
+        type: array
+        required: false
+        items:
+          type: string
+
+      uploaded_at:
+        type: date_time
+        required: true
+
+      mime_type:
+        type: string
+        required: false
+        enum: ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+        # Note: 'image/svg+xml' excluded by default for security (can contain scripts)
+
+      file_size:
+        type: integer
+        required: false
+        range:
+          min: 0
+          max: 10485760  # 10MB max
+
+# Example of a complete user profile DTO with images
+user_profile:
+  dto:
+    username:
+      type: string
+      required: true
+      length:
+        min: 3
+        max: 30
+      pattern: '/^[a-zA-Z0-9_]+$/'
+
+    email:
+      type: email
+      required: true
+
+    full_name:
+      type: name
+      required: true
+
+    bio:
+      type: string
+      required: false
+      length:
+        max: 500
+
+    # Profile images
+    avatar:
+      type: image
+      required: false
+      description: "User's avatar image in base64 or data URI format"
+
+    background_image:
+      type: image
+      required: false
+      description: "Profile background/banner image"
+
+    # Social media verification badges (images)
+    verification_badges:
+      type: array
+      required: false
+      items:
+        type: object
+        properties:
+          badge_type:
+            type: string
+            required: true
+            enum: ['twitter', 'facebook', 'instagram', 'linkedin', 'github']
+          badge_image:
+            type: image
+            required: true
+          verified_date:
+            type: date
+            required: true
+
+    created_at:
+      type: date_time
+      required: true
+
+    last_active:
+      type: date_time
+      required: false
+
+# Example for a photo upload API endpoint
+photo_upload:
+  dto:
+    photo:
+      type: image
+      required: true
+      description: "Photo to upload - must be base64 encoded or data URI"
+
+    album_id:
+      type: integer
+      required: false
+      description: "ID of album to add photo to"
+
+    title:
+      type: string
+      required: false
+      length:
+        max: 255
+
+    description:
+      type: string
+      required: false
+      length:
+        max: 1000
+
+    tags:
+      type: array
+      required: false
+      items:
+        type: string
+        length:
+          min: 1
+          max: 50
+
+    location:
+      type: object
+      required: false
+      properties:
+        latitude:
+          type: float
+          required: true
+          range:
+            min: -90
+            max: 90
+        longitude:
+          type: float
+          required: true
+          range:
+            min: -180
+            max: 180
+        place_name:
+          type: string
+          required: false
+
+    is_public:
+      type: boolean
+      required: false
